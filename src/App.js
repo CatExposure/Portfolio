@@ -1,12 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
-import Home from './Home';
-import Databases from './Database_Usage';
-import YouTubeAPI from './YouTube_API';
-import SpotifyAPI from './Spotify_API';
-import Contact from './Contact';
-import PageNotFound from './404Page'
-import NavBar from './NavBar';
+import Home from './Webpages/Home';
+import Databases from './Webpages/Database_Usage';
+import YouTubeAPI from './Webpages/YouTube_API';
+import SpotifyAPI from './Webpages/Spotify_API';
+import Contact from './Webpages/Contact';
+import PageNotFound from './Webpages/404Page'
+import NavBar from './Components/NavBar';
 import {Route, Link, Routes} from 'react-router-dom';
 
 function App() {
