@@ -2,6 +2,11 @@ import React from 'react';
 import {useEffect, useState} from "react";
 import axios from 'axios';
 
+/*
+TO DO:
+    prevent user from searching nothing (gives react error)
+    change artist to songs if possible, mainly with the ability to play music, as well as show song name
+*/
 function SpotifyAPI(){
     const CLIENT_ID = "b0fddc430d1245ec9a363bee851354d8"; //identifier of the created app
     const REDIRECT_URI = "http://localhost:3000/SpotifyAPI"; //where the user will get redirected once they login through spotify
@@ -63,8 +68,9 @@ function SpotifyAPI(){
     const renderArtists = () => {
             return artists.map(artist => (
                 <div key={artist.id}>
-                    {artist.images.length ? <img src={artist.images[0].url} alt =""/> : <div>No Image</div>}
-                    {artist.name}
+                    {artist.images.length ? <img src={artist.images[0].url} alt =""/> : <div>No Image</div>} <br/>
+                    {artist.name} <br/>
+                    <h3>Followers: {artist.followers.total} </h3>
                 </div>
             ))
     }
