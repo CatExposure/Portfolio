@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import Home from './Webpages/Home';
 import Databases from './Webpages/Database_Usage';
@@ -7,7 +6,7 @@ import SpotifyAPI from './Webpages/Spotify_API';
 import Contact from './Webpages/Contact';
 import PageNotFound from './Webpages/404Page'
 import NavBar from './Components/NavBar';
-import {Route, Link, Routes} from 'react-router-dom';
+import {Route, Routes} from 'react-router-dom';
 
 function App() {
   return (
