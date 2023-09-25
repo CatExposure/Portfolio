@@ -16,6 +16,7 @@ function SpotifyAPI(){
     const [token, setToken] = useState("");
     const [searchKey, setSearchKey] = useState("");
     const [artists, setArtists] = useState([]);
+    const [Results, setResults] = useState(true)
 
     useEffect(()=> {
         //obtains the hash from our current webpage as well as token from our local storage (if we have one)
@@ -50,6 +51,15 @@ function SpotifyAPI(){
     //lastly, we set the state of artists to an array of all the items for each artist in the data we fetched
     const searchArtists = async (e) => {
         e.preventDefault();
+
+        //if the user entered nothing or uses the * character (explained more later) then set the results state to false and prevents the search from running
+        //as for the * character, in the actual spotify app you can search with the * character, however the API seems to despise it.
+        //I don't have enough knowledge on how their search params handle *, so we will refrain from using it for now
+        if (searchKey.trim() === "" || searchKey.startsWith("*")) {
+            setResults(false);
+            return;
+        }
+
         const {data} = await axios.get("https://api.spotify.com/v1/search", {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -59,13 +69,23 @@ function SpotifyAPI(){
                 type: "artist"
             }
         })
-
+        //if the user enteres a value and there are no artists, set the Results state to false, and set to true in any other case (if there's at least 1 artist)
+        if (data.artists.items.length === 0) {
+            setResults(false);
+        } else {
+            setResults(true);
+        }
         setArtists(data.artists.items);
     }
 
     //maps out the artists and gives each artists a div with their id as the key, then includes an image and their name.
-    //make sure to include the try catch statement, otherwise this will give an error due to there being no artists to map out (as we haven't searched anything yet)
+    //if the Results state is false, it will instead show no artists as this state would only be false if the search were to give an error or no artists
     const renderArtists = () => {
+        if (Results === false) {
+            return (
+                <div></div>
+            )
+        } else {
             return artists.map(artist => (
                 <div key={artist.id}>
                     {artist.images.length ? <img src={artist.images[0].url} alt =""/> : <div>No Image</div>} <br/>
@@ -73,9 +93,27 @@ function SpotifyAPI(){
                     <h3>Followers: {artist.followers.total} </h3>
                 </div>
             ))
+        }
     }
 
-    const test = () => {
+    //will render a message stating there were no reults and to inform the user to refrain from using * if the Results state is false
+    const renderResultsMessage = () => {
+        if (Results === false) {
+            return (
+                <div>
+                   <p>No results came up!</p>
+                   <p>Refrain from using '*' in your searches</p>
+                </div>
+            )
+        } else {
+            return (
+                <div></div>
+            )
+        }
+    }
+
+    //allows the user to login to spotify (or log out if they are already logged in)
+    const LoginOut = () => {
         if (!token) {
             return (
                 <div>
@@ -91,10 +129,12 @@ function SpotifyAPI(){
         }
     }
 
+    //displays the search text input and button, as well as a message informing the user to login to use the spoitfy API if they are not
+    //also displays the ResultsMessage and Artists
     return(
         <div>
             <h1>Spotify!</h1>
-            {test()}
+            {LoginOut()}
             {token ? 
                 <form onSubmit={searchArtists}> 
                     <input type="text" onChange={e => setSearchKey(e.target.value)}/>
@@ -106,8 +146,8 @@ function SpotifyAPI(){
             <div id='artistSection'>
 
             </div>
+            {renderResultsMessage()}
             {renderArtists()}
-
         </div>
     )
 }
