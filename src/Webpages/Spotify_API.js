@@ -1,11 +1,12 @@
+import "../styles/Spotify_API.css"
 import React from 'react';
 import {useEffect, useState} from "react";
 import axios from 'axios';
 
 /*
 TO DO:
-    prevent user from searching nothing (gives react error)
     change artist to songs if possible, mainly with the ability to play music, as well as show song name
+    find out axios problem when going back to page or reloading page
 */
 function SpotifyAPI(){
     const CLIENT_ID = "b0fddc430d1245ec9a363bee851354d8"; //identifier of the created app
@@ -22,7 +23,12 @@ function SpotifyAPI(){
         //obtains the hash from our current webpage as well as token from our local storage (if we have one)
         const hash = window.location.hash;
         let token = window.localStorage.getItem("token");
+        let userSearch = window.sessionStorage.getItem("userSearch")
 
+        if (token && userSearch) {
+            setSearchKey(userSearch);
+            getArtists();
+        }
         //if there is no token stored in the local storage (returned null) AND there is no hash...
         if(!token && hash) {
             //replaces the '#' and '?' symbols from our hash, then obtains the token using the urlParams.get function
@@ -33,6 +39,7 @@ function SpotifyAPI(){
             window.location.hash="";
             window.localStorage.setItem("token", token);
             window.location.reload(false);
+            window.sessionStorage.removeItem("userSearch");
         }
 
         //lastly, sets the 'state' of token to the value of the token we obtained
@@ -49,7 +56,7 @@ function SpotifyAPI(){
     //we use axios as it is more secure (prevents xsrf), but functions similarly to a fetch request
     //we use an async function with await to ensure that no further code is executed before the fetch request is complete
     //lastly, we set the state of artists to an array of all the items for each artist in the data we fetched
-    const searchArtists = async (e) => {
+    const searchVerify = async (e) => {
         e.preventDefault();
 
         //if the user entered nothing or uses the * character (explained more later) then set the results state to false and prevents the search from running
@@ -59,23 +66,46 @@ function SpotifyAPI(){
             setResults(false);
             return;
         }
+        window.sessionStorage.setItem("userSearch", searchKey);
+        getArtists()
+    }
 
-        const {data} = await axios.get("https://api.spotify.com/v1/search", {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-            params: {
-                q: searchKey,
-                type: "artist"
-            }
-        })
+
+    const getArtists = async () => {
+        try{
+            const {data} = await axios.get("https://api.spotify.com/v1/search", {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                params: {
+                    q: searchKey,
+                    type: "artist"
+                }
+            })
+
         //if the user enteres a value and there are no artists, set the Results state to false, and set to true in any other case (if there's at least 1 artist)
         if (data.artists.items.length === 0) {
             setResults(false);
         } else {
             setResults(true);
         }
+        console.log(data);
         setArtists(data.artists.items);
+
+    }catch(error){
+        console.log(error);
+    } 
+    }
+
+    const renderGenres = (item) => {
+        var genreList = "";
+        item.genres.forEach(genre => {
+            genreList += genre+", ";
+        })
+
+        genreList = genreList.slice(0, -2);
+        
+        return genreList;
     }
 
     //maps out the artists and gives each artists a div with their id as the key, then includes an image and their name.
@@ -86,13 +116,19 @@ function SpotifyAPI(){
                 <div></div>
             )
         } else {
-            return artists.map(artist => (
-                <div key={artist.id}>
-                    {artist.images.length ? <img src={artist.images[0].url} alt =""/> : <div>No Image</div>} <br/>
-                    {artist.name} <br/>
-                    <h3>Followers: {artist.followers.total} </h3>
-                </div>
-            ))
+            return artists.map(item => (
+                    <div key={item.id}className="artistSection" onClick={() => window.location.assign(item.external_urls.spotify)}>
+                        <div className="artistImage">
+                            {item.images.length ? <img src={item.images[0].url} alt=""/> : <div>No Image</div>}
+                        </div>
+                        <div className="artistInfo">
+                            <p className="artistName">{item.name}</p>
+                            <p className="artistFollowers">Followers: {item.followers.total} </p>
+                            <p className="artistGenres">Genres: {renderGenres(item)}</p>
+                        </div>
+                    </div>
+                
+            ));
         }
     }
 
@@ -136,7 +172,7 @@ function SpotifyAPI(){
             <h1>Spotify!</h1>
             {LoginOut()}
             {token ? 
-                <form onSubmit={searchArtists}> 
+                <form onSubmit={searchVerify}> 
                     <input type="text" onChange={e => setSearchKey(e.target.value)}/>
                     <button type={"submit"}>Search</button>
                 </form>
@@ -147,7 +183,10 @@ function SpotifyAPI(){
 
             </div>
             {renderResultsMessage()}
-            {renderArtists()}
+            <div className="artistResults">
+                {renderArtists()}
+            </div>
+            
         </div>
     )
 }

@@ -1,4 +1,3 @@
-import './App.css';
 import Home from './Webpages/Home';
 import Databases from './Webpages/Database_Usage';
 import YouTubeAPI from './Webpages/YouTube_API';
