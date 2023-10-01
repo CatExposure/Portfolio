@@ -25,6 +25,7 @@ function SpotifyAPI(){
     //if the user entered nothing or uses the * character (explained more later) then set the results state to false/none and prevents the search from running
         //as for the * character, in the actual spotify app you can search with the * character, however the API seems to despise it.
         //I don't have enough knowledge on how their search params handle *, so we will refrain from using it for now
+        //also using a useEffect hook here to automatically search as the user types in the artist
     useEffect(()=> {
         if (searchKey.trim() === "" ) {
             setResults("none");
@@ -143,6 +144,7 @@ function SpotifyAPI(){
 
     //maps out the artists and gives each artists a div with their id as the key, then includes an image and their name.
     //if the Results state is false, it will instead show no artists as this state would only be false if the search were to give an error or no artists
+    //clicking on a artist send the user to another page to view their top-10 tracks, as well as the ability to play them
     const renderArtists = () => {
         if (Results === "false" || Results === "none") {
             return (
@@ -150,9 +152,12 @@ function SpotifyAPI(){
             )
         } else {
             return artists.map(item => (
-                    <div key={item.id}className="artistSection" onClick={() => window.location.assign(item.external_urls.spotify)}>
+                    <div key={item.id}className="artistSection" onClick={() => {
+                        window.sessionStorage.setItem("artistId", item.id)
+                        window.location.assign("http://localhost:3000/SpotifySongs");
+                    }}>
                         <div className="artistImage">
-                            {item.images.length ? <img src={item.images[0].url} alt=""/> : <div>No Image</div>}
+                           {item.images.length ? <img src={item.images[0].url} alt=""/> : <div>No Image</div>}
                         </div>
                         <div className="artistInfo">
                             <p className="artistName">{item.name}</p>
