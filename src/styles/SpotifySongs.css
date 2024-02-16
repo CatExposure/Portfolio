@@ -1,0 +1,24 @@
+.trackTable{
+    display:flex;
+    border: solid black 2px;
+    margin-bottom: 5px
+}
+
+.playButton{
+    align-content: center;
+    margin-left: 20px;
+    width: 5%;
+}
+
+.playButtonImg{
+    width:100%; 
+}
+
+.trackImgContainer{
+    width:10%;
+    margin-right: 10px;
+}
+
+.trackImg{
+    width:100%;
+}

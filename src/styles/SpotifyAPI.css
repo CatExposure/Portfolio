@@ -1,0 +1,54 @@
+.artistResults {
+    padding: 10%;
+    margin: 0px;
+}
+
+.artistSection {
+   display: flex; 
+   margin-bottom: 1%;
+   width: 50%;
+   border: solid black 1px;
+   transition: .2s;
+}
+
+.artistSection:hover {
+    transition: .3s;
+    border: solid grey 7px;
+    margin-left: 1%;
+}
+
+.artistImage {
+    order: 1;
+    margin: 0px;
+    padding: 0px;
+    width: 30%;
+}
+
+.artistImage img {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.artistInfo {
+    order: 2;
+    margin: 0px;
+    padding: 0px;
+    width: 40%;
+}
+
+.artistName {
+    font-size: 36px;
+    margin-left: 5%;
+}
+
+.artistFollowers {
+    font-size: 20px;
+    margin-left: 10%;
+}
+
+.artistGenres {
+    font-size: 20px;
+    margin-left: 10%;
+}
