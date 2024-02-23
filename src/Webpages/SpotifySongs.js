@@ -72,7 +72,18 @@ function SpotifySongs() {
             (minutes+1) + ":00" :
             minutes + ":" + (seconds < 10 ? "0" : "") + seconds
           );
-    }
+    };
+
+    function changeButtonImg(url) {
+        if (url === audioPlayer.current.src) {
+            isPlaying ? buttonImg = require("../Images/pauseButton.png") : require("../Images/playButton.png")
+            return buttonImg;
+        }
+        else{
+            buttonImg = require("../Images/playButton.png")
+            return buttonImg
+        }
+    };
 
     const render = () => {
         return (
@@ -99,7 +110,7 @@ function SpotifySongs() {
                                         setPlaying(true);
                                     };
                                 };
-                            }}><img src={buttonImg} alt="" className='playButtonImg'></img></button>
+                            }}><img src={changeButtonImg(item.preview_url)} alt="" className='playButtonImg'></img></button>
                         </div>
                     </div>))}
                     <div className='audioPlayer_GUI'>
