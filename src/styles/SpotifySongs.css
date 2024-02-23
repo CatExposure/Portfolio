@@ -1,7 +1,11 @@
+.main{
+    margin-bottom: 5%;
+}
+
 .trackTable{
     display:flex;
     border: solid black 2px;
-    margin-bottom: 5px
+    margin-bottom: 5px;
 }
 
 .playButton{
