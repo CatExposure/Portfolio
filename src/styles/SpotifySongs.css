@@ -22,3 +22,26 @@
 .trackImg{
     width:100%;
 }
+
+.audioPlayer_GUI{
+    border: black 3px solid;
+    background-color: gray;
+    align-items: center;
+    width: 100vw;
+    justify-content: center;
+    top: 90%;
+    height: 10%;
+    position: fixed;
+    display: flex;
+}
+
+.wrapper{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.GUI_ITEM{
+    margin-left: auto;
+    margin-right: auto;
+}
