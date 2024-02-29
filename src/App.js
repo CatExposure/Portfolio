@@ -1,13 +1,12 @@
-import logo from './logo.svg';
-import './App.css';
-import Home from './Home';
-import Databases from './Database_Usage';
-import YouTubeAPI from './YouTube_API';
-import SpotifyAPI from './Spotify_API';
-import Contact from './Contact';
-import PageNotFound from './404Page'
-import NavBar from './NavBar';
-import {Route, Link, Routes} from 'react-router-dom';
+import Home from './Webpages/Home';
+import Databases from './Webpages/DatabaseUsage';
+import YouTubeAPI from './Webpages/YouTubeAPI';
+import SpotifyAPI from './Webpages/SpotifyAPI';
+import Contact from './Webpages/Contact';
+import PageNotFound from './Webpages/404Page'
+import SpotifySongs from "./Webpages/SpotifySongs"
+import NavBar from './Components/NavBar';
+import {Route, Routes} from 'react-router-dom';
 
 function App() {
   return (
@@ -20,6 +19,8 @@ function App() {
         <Route path="/YouTubeAPI" Component={YouTubeAPI}/>
         <Route path="/SpotifyAPI" Component={SpotifyAPI}/>
         <Route path="/Databases" Component={Databases}/>
+        <Route path="/404" Component={PageNotFound}/>
+        <Route path="/SpotifySongs" Component={SpotifySongs}/>
       </Routes>
     </div>
   );
