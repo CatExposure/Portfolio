@@ -1,5 +1,49 @@
+.table-section{
+    display: flex;
+    justify-content: center;
+}
+
 .table-container{
     display: flex;
     flex-direction: column;
     justify-content: center;
+    text-align: center;
+    align-content: center;
+    border-collapse: collapse;
+}
+
+.test{
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.th{
+    border: 1px solid black;
+    position: relative;
+}
+
+.td{
+    border: 1px solid black;
+}
+
+.resizer{
+    position: absolute;
+    opacity: 0;
+    height: 100%;
+    top: 0px;
+    right: 0px;
+    width: 5px;
+    background: #27bbff;
+    cursor: col-resize;
+    user-select: none;
+    touch-action: none;
+    border-radius: 12px;
+} 
+.resizer.isResizing{
+    background: #2eff31;
+    opacity: 1;
+}
+.resizer:hover{
+    opacity: 1;
 }

@@ -76,18 +76,21 @@ function Databases(){
     const table = useReactTable({
         columns,
         data,
-        getCoreRowModel:getCoreRowModel()
+        getCoreRowModel:getCoreRowModel(),
+        columnResizeMode:"onChange",
     })
 
     return(
-        <div>
-            <h1>Databases</h1>
+        <div className="table-section">
             <table className='table-container'>
-                <tbody>
+            <tbody>
                 {table.getHeaderGroups().map(headerGroup => <tr className = "tr" key={headerGroup.id}>
                     {headerGroup.headers.map(
-                        header => <th className="th" key={header.id}>
+                        header => <th className="th" width={header.getSize()} key={header.id}>
                             {header.column.columnDef.header}
+                                <div //allows the user the resize the column using tanstack functions
+                                onMouseDown={header.getResizeHandler()} onTouchStart={header.getResizeHandler()}
+                                className={`resizer ${header.column.getIsResizing() ? "isResizing" : ""}`}></div>
                         </th>
                     )}
                 </tr>)}
