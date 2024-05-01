@@ -47,3 +47,8 @@
 .resizer:hover{
     opacity: 1;
 }
+
+.userInputFilter{
+    margin-bottom: 5px;
+    float:left;
+}

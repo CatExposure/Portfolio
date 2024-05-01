@@ -1,7 +1,8 @@
 import "../styles/Database.css";
 import React from 'react';
 import Axios from 'axios';
-import {flexRender, getCoreRowModel, useReactTable} from '@tanstack/react-table';
+import {flexRender, getCoreRowModel, getFilteredRowModel, useReactTable} from '@tanstack/react-table';
+//MAKE TABLE INTO COMPONENT
 
 function Databases(){
 
@@ -72,17 +73,31 @@ function Databases(){
             header: "Password",
         },
     ]
+
+
+    const [columnFilters, setColumnFilters] = React.useState([]);
+
+
     //columns and data are required options, while getCoreRowModel allows filtering, sorting, etc.
     const table = useReactTable({
         columns,
         data,
+        state:{
+            columnFilters,
+        },
         getCoreRowModel:getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
         columnResizeMode:"onChange",
+        onColumnFilterChange: setColumnFilters,
     })
 
     return(
         <div className="table-section">
             <table className='table-container'>
+            <div>
+                <input type="text" className="userInputFilter" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
+                    e => setColumnFilters([{id:"first_name", value: e.target.value}])}></input>
+            </div>
             <tbody>
                 {table.getHeaderGroups().map(headerGroup => <tr className = "tr" key={headerGroup.id}>
                     {headerGroup.headers.map(
