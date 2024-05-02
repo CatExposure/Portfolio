@@ -4,6 +4,8 @@
   "private": true,
   "proxy": "http://localhost:5000",
   "dependencies": {
+    "@headlessui/react": "^1.7.19",
+    "@headlessui/tailwindcss": "^0.2.0",
     "@tanstack/react-table": "^8.13.2",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -38,5 +40,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.3"
   }
 }

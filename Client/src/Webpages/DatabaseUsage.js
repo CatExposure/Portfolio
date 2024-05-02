@@ -2,7 +2,9 @@ import "../styles/Database.css";
 import React from 'react';
 import Axios from 'axios';
 import {flexRender, getCoreRowModel, getFilteredRowModel, useReactTable} from '@tanstack/react-table';
+import {Menu} from '@headlessui/react'
 //MAKE TABLE INTO COMPONENT
+//DO NOT USE FLOWBITE, IT HAS AN ISSUE WITH HOW EARLY JAVASCRIPT RUNS DOMCONTENTLOADED AND WILL NOT WORK AFTER FIRST RENDER
 
 function Databases(){
 
@@ -91,13 +93,46 @@ function Databases(){
         onColumnFilterChange: setColumnFilters,
     })
 
+    function DropdownItem(prop){
+        return(
+            <li>
+                <input type="checkbox" value="" className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"></input>
+                <label className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black">{prop.text}</label>
+            </li>
+        );
+    }
+
     return(
         <div className="table-section">
-            <table className='table-container'>
+            <div className='table-container'>
             <div>
                 <input type="text" className="userInputFilter" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
                     e => setColumnFilters([{id:"first_name", value: e.target.value}])}></input>
+                <Menu>
+                    <Menu.Button>Drop</Menu.Button>
+                    <Menu.Items>
+                        <Menu.Item>
+                            <DropdownItem text="First Name"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <DropdownItem text="Last Name"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <DropdownItem text="Email Address"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <DropdownItem text="Address"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <DropdownItem text="Phone Number"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <DropdownItem text="Access Level"/>
+                        </Menu.Item>
+                    </Menu.Items>
+                </Menu>
             </div>
+            <table>
             <tbody>
                 {table.getHeaderGroups().map(headerGroup => <tr className = "tr" key={headerGroup.id}>
                     {headerGroup.headers.map(
@@ -122,6 +157,7 @@ function Databases(){
             }
             </tbody>
             </table>
+            </div>
         </div>
     )
 }

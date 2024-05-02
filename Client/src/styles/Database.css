@@ -51,4 +51,12 @@
 .userInputFilter{
     margin-bottom: 5px;
     float:left;
+    background-color: gray;
+}
+
+.columnFilter{
+    margin-bottom: 5px;
+    margin-left: 5px;
+    float:left;
+    background-color: lightgray;
 }
