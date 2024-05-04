@@ -77,11 +77,19 @@ function Databases(){
     ]
 
 
-    const [columnFilters, setColumnFilters] = React.useState([]);
+    const [columnFilters, setColumnFilters] = React.useState([{
+        id: "first_name",
+        value: ""
+    }]);
     const [columnVisibility, setColumnVisibility] = React.useState({
-        first_name: true
-    })
-
+        first_name: true,
+        last_name: true,
+        email: true,
+        address: true,
+        phone: true,
+        access: true,
+        password: false
+    });
     //columns and data are required options, while getCoreRowModel allows filtering, sorting, etc.
     const table = useReactTable({
         columns,
@@ -104,7 +112,7 @@ function Databases(){
         address: true,
         phone: true,
         access: true,
-        password: true
+        password: false
     });
 
     function DropdownItem(prop){
@@ -126,12 +134,45 @@ function Databases(){
         );
     }
 
+    function ColumnSelectButton(prop){
+
+        return(
+                <input type="button" value={prop.text} onClick={() => {setColumnFilters([{id: prop.columnName, value: columnFilters[0].value}])}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"/>
+        );
+    }
+
     return(
         <div className="table-section">
             <div className='table-container'>
             <div>
                 <input type="text" className="userInputFilter" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
-                    e => setColumnFilters([{id:"first_name", value: e.target.value}])}></input>
+                    e => setColumnFilters([{id: columnFilters[0].id, value: e.target.value}])}></input>
+                <Menu>
+                    <Menu.Button>Drop2</Menu.Button>
+                    <Menu.Items>
+                        <Menu.Item>
+                            <ColumnSelectButton columnName="first_name" text="First Name"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <ColumnSelectButton columnName="last_name" text="Last Name"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <ColumnSelectButton columnName="email" text="Email Address"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <ColumnSelectButton columnName="address" text="Address"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <ColumnSelectButton columnName="phone" text="Phone Number"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <ColumnSelectButton columnName="access" text="Access Level"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <ColumnSelectButton columnName="password" text="Password"/>
+                        </Menu.Item>
+                    </Menu.Items>
+                </Menu>
                 <Menu>
                     <Menu.Button>Drop</Menu.Button>
                     <Menu.Items>
