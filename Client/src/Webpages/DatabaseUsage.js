@@ -1,7 +1,7 @@
 import "../styles/Database.css";
 import React from 'react';
 import Axios from 'axios';
-import {flexRender, getCoreRowModel, getFilteredRowModel, useReactTable} from '@tanstack/react-table';
+import {flexRender, getCoreRowModel, getFilteredRowModel, useReactTable, } from '@tanstack/react-table';
 import {Menu} from '@headlessui/react'
 //MAKE TABLE INTO COMPONENT
 //DO NOT USE FLOWBITE, IT HAS AN ISSUE WITH HOW EARLY JAVASCRIPT RUNS DOMCONTENTLOADED AND WILL NOT WORK AFTER FIRST RENDER
@@ -78,7 +78,9 @@ function Databases(){
 
 
     const [columnFilters, setColumnFilters] = React.useState([]);
-
+    const [columnVisibility, setColumnVisibility] = React.useState({
+        first_name: true
+    })
 
     //columns and data are required options, while getCoreRowModel allows filtering, sorting, etc.
     const table = useReactTable({
@@ -86,17 +88,39 @@ function Databases(){
         data,
         state:{
             columnFilters,
+            columnVisibility,
         },
         getCoreRowModel:getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         columnResizeMode:"onChange",
         onColumnFilterChange: setColumnFilters,
+        oncolumnVisibilityChange: setColumnVisibility,
     })
 
+    var columnVis = React.useRef({
+        first_name: true,
+        last_name: true,
+        email: true,
+        address: true,
+        phone: true,
+        access: true,
+        password: true
+    });
+
     function DropdownItem(prop){
+        //JESUS CHRIST I spent so long and this visibilty per column
+        //basic jist is, if there is something that relies on 2 usestates being changed, find another method to get what you want without using 1 of the usestates
+        //below function works as each checkbox checks if their respective column is visible (doesnt require a usestate)
+        //after there is a change, update the columnVis object and set (a copy of?) it to columnVisibility usestate
+        //if you dont send a copy (the ...{your object here}), then the usestate will recognize it as the same object and not see a reason to re-render
+        function handleChange(e, prop){
+            columnVis.current[prop.columnName] = e.target.checked;
+            setColumnVisibility({...columnVis.current});
+        }
+        
         return(
             <li>
-                <input type="checkbox" value="" className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"></input>
+                <input type="checkbox" defaultChecked={table.getColumn(prop.columnName).getIsVisible()} onChange={(e) => {handleChange(e, prop)}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"></input>
                 <label className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black">{prop.text}</label>
             </li>
         );
@@ -112,22 +136,25 @@ function Databases(){
                     <Menu.Button>Drop</Menu.Button>
                     <Menu.Items>
                         <Menu.Item>
-                            <DropdownItem text="First Name"/>
+                            <DropdownItem columnName="first_name" text="First Name"/>
                         </Menu.Item>
                         <Menu.Item>
-                            <DropdownItem text="Last Name"/>
+                            <DropdownItem columnName="last_name" text="Last Name"/>
                         </Menu.Item>
                         <Menu.Item>
-                            <DropdownItem text="Email Address"/>
+                            <DropdownItem columnName="email" text="Email Address"/>
                         </Menu.Item>
                         <Menu.Item>
-                            <DropdownItem text="Address"/>
+                            <DropdownItem columnName="address" text="Address"/>
                         </Menu.Item>
                         <Menu.Item>
-                            <DropdownItem text="Phone Number"/>
+                            <DropdownItem columnName="phone" text="Phone Number"/>
                         </Menu.Item>
                         <Menu.Item>
-                            <DropdownItem text="Access Level"/>
+                            <DropdownItem columnName="access" text="Access Level"/>
+                        </Menu.Item>
+                        <Menu.Item>
+                            <DropdownItem columnName="password" text="Password"/>
                         </Menu.Item>
                     </Menu.Items>
                 </Menu>
