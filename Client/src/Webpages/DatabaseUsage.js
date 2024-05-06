@@ -1,7 +1,7 @@
 import "../styles/Database.css";
 import React from 'react';
 import Axios from 'axios';
-import {flexRender, getCoreRowModel, getFilteredRowModel, useReactTable, } from '@tanstack/react-table';
+import {flexRender, getPaginationRowModel, getCoreRowModel, getFilteredRowModel, useReactTable, } from '@tanstack/react-table';
 import {Menu} from '@headlessui/react'
 //MAKE TABLE INTO COMPONENT
 //DO NOT USE FLOWBITE, IT HAS AN ISSUE WITH HOW EARLY JAVASCRIPT RUNS DOMCONTENTLOADED AND WILL NOT WORK AFTER FIRST RENDER
@@ -81,6 +81,10 @@ function Databases(){
         id: "first_name",
         value: ""
     }]);
+    const [pagination, setPagination] = React.useState({
+        pageSize: 50,
+        pageIndex: 0
+    });
     const [columnVisibility, setColumnVisibility] = React.useState({
         first_name: true,
         last_name: true,
@@ -97,9 +101,11 @@ function Databases(){
         state:{
             columnFilters,
             columnVisibility,
+            pagination,
         },
         getCoreRowModel:getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
         columnResizeMode:"onChange",
         onColumnFilterChange: setColumnFilters,
         oncolumnVisibilityChange: setColumnVisibility,
@@ -113,6 +119,11 @@ function Databases(){
         phone: true,
         access: true,
         password: false
+    });
+
+    var dropDownLabels = React.useRef({
+        columnSelectLabel: "test2",
+        pageCountLabel: "test3"
     });
 
     function DropdownItem(prop){
@@ -135,9 +146,14 @@ function Databases(){
     }
 
     function ColumnSelectButton(prop){
-
         return(
                 <input type="button" value={prop.text} onClick={() => {setColumnFilters([{id: prop.columnName, value: columnFilters[0].value}])}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"/>
+        );
+    }
+
+    function PageCountButton(prop){
+        return(
+            <input type="button" value={prop.value} onClick={() => {setPagination({pageSize: parseInt(prop.value), pageIndex: 0})}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"/>
         );
     }
 
@@ -148,7 +164,7 @@ function Databases(){
                 <input type="text" className="userInputFilter" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
                     e => setColumnFilters([{id: columnFilters[0].id, value: e.target.value}])}></input>
                 <Menu>
-                    <Menu.Button>Drop2</Menu.Button>
+                    <Menu.Button>{dropDownLabels.current.columnSelectLabel}</Menu.Button>
                     <Menu.Items>
                         <Menu.Item>
                             <ColumnSelectButton columnName="first_name" text="First Name"/>
@@ -199,6 +215,23 @@ function Databases(){
                         </Menu.Item>
                     </Menu.Items>
                 </Menu>
+                <Menu>
+                    <Menu.Button>{dropDownLabels.current.pageCountLabel}</Menu.Button>
+                        <Menu.Items>
+                            <Menu.Item>
+                                <PageCountButton value="25"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <PageCountButton value="50"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <PageCountButton value="75"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <PageCountButton value="100"/>
+                            </Menu.Item>
+                        </Menu.Items>
+                </Menu>
             </div>
             <table>
             <tbody>
@@ -225,6 +258,26 @@ function Databases(){
             }
             </tbody>
             </table>
+            <br/>
+                <div>
+                    <label>page </label>
+                    {table.getState().pagination.pageIndex + 1}<label> of </label>
+                    {table.getPageCount()}
+                </div>
+                <div>
+                    <input type="button" value="Previous Page" onClick={() => {
+                        setPagination({pageSize: pagination.pageSize, pageIndex: pagination.pageIndex - 1});
+                    }}
+                    disabled={
+                        pagination.pageIndex === 0
+                    }/>
+                    <input type="button" value="Next Page" onClick={() => {
+                        setPagination({pageSize: pagination.pageSize, pageIndex: pagination.pageIndex + 1});
+                    }}
+                    disabled={
+                        pagination.pageIndex === table.getPageCount() - 1
+                    }/>
+                </div>
             </div>
         </div>
     )
