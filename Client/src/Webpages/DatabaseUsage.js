@@ -22,6 +22,24 @@ function Databases(){
 
     //useState to store the data obtained from the database
     const [data, setData] = React.useState([]);
+    const [formVis, setFormVis] = React.useState(false);
+    const [columnFilters, setColumnFilters] = React.useState([{
+        id: "first_name",
+        value: ""
+    }]);
+    const [pagination, setPagination] = React.useState({
+        pageSize: 50,
+        pageIndex: 0
+    });
+    const [columnVisibility, setColumnVisibility] = React.useState({
+        first_name: true,
+        last_name: true,
+        email: true,
+        address: true,
+        phone: true,
+        access: true,
+        password: false
+    });
 
     //converts an array of arrays into an array of objects, because god forbid I can't use an array index as the accessorKey 
     function ObjectConversion(arrayData){
@@ -76,24 +94,6 @@ function Databases(){
         },
     ]
 
-
-    const [columnFilters, setColumnFilters] = React.useState([{
-        id: "first_name",
-        value: ""
-    }]);
-    const [pagination, setPagination] = React.useState({
-        pageSize: 50,
-        pageIndex: 0
-    });
-    const [columnVisibility, setColumnVisibility] = React.useState({
-        first_name: true,
-        last_name: true,
-        email: true,
-        address: true,
-        phone: true,
-        access: true,
-        password: false
-    });
     //columns and data are required options, while getCoreRowModel allows filtering, sorting, etc.
     const table = useReactTable({
         columns,
@@ -122,10 +122,11 @@ function Databases(){
     });
 
     var dropDownLabels = React.useRef({
-        columnSelectLabel: "test2",
-        pageCountLabel: "test3"
+        columnSelectLabel: "First Name",
+        pageCountLabel: "50"
     });
 
+    console.log(dropDownLabels)
     function DropdownItem(prop){
         //JESUS CHRIST I spent so long and this visibilty per column
         //basic jist is, if there is something that relies on 2 usestates being changed, find another method to get what you want without using 1 of the usestates
@@ -147,136 +148,168 @@ function Databases(){
 
     function ColumnSelectButton(prop){
         return(
-                <input type="button" value={prop.text} onClick={() => {setColumnFilters([{id: prop.columnName, value: columnFilters[0].value}])}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"/>
+                <input type="button" value={prop.text} onClick={() => {dropDownLabels.current.columnSelectLabel = prop.text; setColumnFilters([{id: prop.columnName, value: columnFilters[0].value}])}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"/>
         );
     }
 
     function PageCountButton(prop){
         return(
-            <input type="button" value={prop.value} onClick={() => {setPagination({pageSize: parseInt(prop.value), pageIndex: 0})}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"/>
+            <input type="button" value={prop.value} onClick={() => {dropDownLabels.current.pageCountLabel = prop.value; setPagination({pageSize: parseInt(prop.value), pageIndex: 0})}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"/>
         );
     }
 
     return(
-        <div className="table-section">
-            <div className='table-container'>
+        <div id="body">
+            <div className="table-section">
             <div>
-                <input type="text" className="userInputFilter" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
-                    e => setColumnFilters([{id: columnFilters[0].id, value: e.target.value}])}></input>
-                <Menu>
-                    <Menu.Button>{dropDownLabels.current.columnSelectLabel}</Menu.Button>
-                    <Menu.Items>
-                        <Menu.Item>
-                            <ColumnSelectButton columnName="first_name" text="First Name"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <ColumnSelectButton columnName="last_name" text="Last Name"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <ColumnSelectButton columnName="email" text="Email Address"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <ColumnSelectButton columnName="address" text="Address"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <ColumnSelectButton columnName="phone" text="Phone Number"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <ColumnSelectButton columnName="access" text="Access Level"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <ColumnSelectButton columnName="password" text="Password"/>
-                        </Menu.Item>
-                    </Menu.Items>
-                </Menu>
-                <Menu>
-                    <Menu.Button>Drop</Menu.Button>
-                    <Menu.Items>
-                        <Menu.Item>
-                            <DropdownItem columnName="first_name" text="First Name"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <DropdownItem columnName="last_name" text="Last Name"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <DropdownItem columnName="email" text="Email Address"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <DropdownItem columnName="address" text="Address"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <DropdownItem columnName="phone" text="Phone Number"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <DropdownItem columnName="access" text="Access Level"/>
-                        </Menu.Item>
-                        <Menu.Item>
-                            <DropdownItem columnName="password" text="Password"/>
-                        </Menu.Item>
-                    </Menu.Items>
-                </Menu>
-                <Menu>
-                    <Menu.Button>{dropDownLabels.current.pageCountLabel}</Menu.Button>
+                    <input type="text" className="userInputFilter" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
+                        e => setColumnFilters([{id: columnFilters[0].id, value: e.target.value}])}></input>
+                    <Menu>
+                        <Menu.Button>{dropDownLabels.current.columnSelectLabel}</Menu.Button>
                         <Menu.Items>
                             <Menu.Item>
-                                <PageCountButton value="25"/>
+                                <ColumnSelectButton columnName="first_name" text="First Name"/>
                             </Menu.Item>
                             <Menu.Item>
-                                <PageCountButton value="50"/>
+                                <ColumnSelectButton columnName="last_name" text="Last Name"/>
                             </Menu.Item>
                             <Menu.Item>
-                                <PageCountButton value="75"/>
+                                <ColumnSelectButton columnName="email" text="Email Address"/>
                             </Menu.Item>
                             <Menu.Item>
-                                <PageCountButton value="100"/>
+                                <ColumnSelectButton columnName="address" text="Address"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <ColumnSelectButton columnName="phone" text="Phone Number"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <ColumnSelectButton columnName="access" text="Access Level"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <ColumnSelectButton columnName="password" text="Password"/>
                             </Menu.Item>
                         </Menu.Items>
-                </Menu>
-            </div>
-            <table>
-            <tbody>
-                {table.getHeaderGroups().map(headerGroup => <tr className = "tr" key={headerGroup.id}>
-                    {headerGroup.headers.map(
-                        header => <th className="th" width={header.getSize()} key={header.id}>
-                            {header.column.columnDef.header}
-                                <div //allows the user the resize the column using tanstack functions
-                                onMouseDown={header.getResizeHandler()} onTouchStart={header.getResizeHandler()}
-                                className={`resizer ${header.column.getIsResizing() ? "isResizing" : ""}`}></div>
-                        </th>
-                    )}
-                </tr>)}
-                {//getRowModel().rows returns an array of rows
-                table.getRowModel().rows.map(row => <tr className = "tr" key={row.id}>
-                {row.getVisibleCells().map(cell => <td className="td" key={cell.id}>
-                        {//look more into this
-                        flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                        )}
-                    </td>)}
-                </tr>)
-            }
-            </tbody>
-            </table>
-            <br/>
-                <div>
-                    <label>page </label>
-                    {table.getState().pagination.pageIndex + 1}<label> of </label>
-                    {table.getPageCount()}
+                    </Menu>
+                    <Menu>
+                        <Menu.Button>Drop</Menu.Button>
+                        <Menu.Items>
+                            <Menu.Item>
+                                <DropdownItem columnName="first_name" text="First Name"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <DropdownItem columnName="last_name" text="Last Name"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <DropdownItem columnName="email" text="Email Address"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <DropdownItem columnName="address" text="Address"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <DropdownItem columnName="phone" text="Phone Number"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <DropdownItem columnName="access" text="Access Level"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <DropdownItem columnName="password" text="Password"/>
+                            </Menu.Item>
+                        </Menu.Items>
+                    </Menu>
+                    <Menu>
+                        <Menu.Button>{dropDownLabels.current.pageCountLabel} indexes</Menu.Button>
+                            <Menu.Items>
+                                <Menu.Item>
+                                    <PageCountButton value="25"/>
+                                </Menu.Item>
+                                <Menu.Item>
+                                    <PageCountButton value="50"/>
+                                </Menu.Item>
+                                <Menu.Item>
+                                    <PageCountButton value="75"/>
+                                </Menu.Item>
+                                <Menu.Item>
+                                    <PageCountButton value="100"/>
+                                </Menu.Item>
+                            </Menu.Items>
+                    </Menu>
+                </div>
                 </div>
                 <div>
-                    <input type="button" value="Previous Page" onClick={() => {
-                        setPagination({pageSize: pagination.pageSize, pageIndex: pagination.pageIndex - 1});
-                    }}
-                    disabled={
-                        pagination.pageIndex === 0
-                    }/>
-                    <input type="button" value="Next Page" onClick={() => {
-                        setPagination({pageSize: pagination.pageSize, pageIndex: pagination.pageIndex + 1});
-                    }}
-                    disabled={
-                        pagination.pageIndex === table.getPageCount() - 1
-                    }/>
+                    {/*This is the pagination section, with all the things related to pagination stuff
+                    fairly basic, this just utilizes a useRef object and a useState object
+                    useRef object is used as a label, essentially just storing whatever value the user clicked on and setting that value as the dropdown button label
+                    the useState object allows us to set the number of entries per page, and as so create a max and min fot the available pages (min will always be 1)*/}
+                        <label>page </label>
+                        {table.getState().pagination.pageIndex + 1}<label> of </label>
+                        {table.getPageCount()}
+                    </div>
+                    <div>
+                        <input type="button" value="Previous Page" onClick={() => {
+                            setPagination({pageSize: pagination.pageSize, pageIndex: pagination.pageIndex - 1});
+                        }}
+                        disabled={
+                            pagination.pageIndex === 0
+                        }/>
+                        <input type="button" value="Next Page" onClick={() => {
+                            setPagination({pageSize: pagination.pageSize, pageIndex: pagination.pageIndex + 1});
+                        }}
+                        disabled={
+                            pagination.pageIndex === table.getPageCount() - 1
+                        }/>
+                    </div>
+                <div className='table-container'>
+                <table>
+                <tbody>
+                    {table.getHeaderGroups().map(headerGroup => <tr className = "tr" key={headerGroup.id}>
+                        {headerGroup.headers.map(
+                            header => <th className="th" width={header.getSize()} key={header.id}>
+                                {header.column.columnDef.header}
+                                    <div //allows the user the resize the column using tanstack functions
+                                    onMouseDown={header.getResizeHandler()} onTouchStart={header.getResizeHandler()}
+                                    className={`resizer ${header.column.getIsResizing() ? "isResizing" : ""}`}></div>
+                            </th>
+                        )}
+                    </tr>)}
+                    {//getRowModel().rows returns an array of rows
+                    table.getRowModel().rows.map(row => <tr className = "tr" key={row.id}>
+                    {row.getVisibleCells().map(cell => <td className="td" key={cell.id}>
+                            {//look more into this
+                            flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                            )}
+                        </td>)}
+                    </tr>)
+                }
+                </tbody>
+                </table>
+                <br/>
+            </div>
+            {/*Jesus christ this took me about 6-9 hours to figure this out
+            firstly, just use a conditional operator with a usestate when trying to switch between an active/inactive element(pretty sure this a typical react thing, getting used to it)
+            secondly, if using transitions with tailwind, they have to be done like so below, ESPECIALLY if you have 2 transitions with different delays
+            more specifically, it seems having a transition in the "general" css stylesheet section (the style right after both of the conditionals) will not function correctly if you have another transition depending on a conditional
+            in this case, I wanted the width to be 0vw AFTER the divs height was 0vh, which relied on the first conditional stylesheet as that is the only time when vh would be 0*/}
+            <div className="fixed bottom-0">
+                <div type="button" onClick={() => {setFormVis(!formVis)}} id="form-button" className="w-fit border border-b-0 border-black border-solid border-1">brug</div>
+                <div id="databaseForm" className={`${formVis ? "h-[0vh] w-[0vw] [transition:width_200ms_300ms,height_300ms_0ms]" : "h-[10vh] w-[100vw] [transition:height_300ms_0ms]"} border-t border-black overflow-hidden`}>
+                    <form>
+                        <label>First Name: </label>
+                        <input type="text"/>
+                        <label>Last Name: </label>
+                        <input type="text"/>
+                        <label>Email: </label>
+                        <input type="text"/>
+                        <label>Address: </label>
+                        <input type="text"/>
+                        <label>Phone: </label>
+                        <input type="text"/>
+                        <label>Access Level: </label>
+                        <input type="text"/>
+                        <label>Password: </label>
+                        <input type="text"/>
+                    </form>
                 </div>
             </div>
         </div>

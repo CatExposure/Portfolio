@@ -7,5 +7,8 @@ module.exports = {
   plugins: [
     require('@headlessui/tailwindcss')
   ],
+  variants: {
+    backgroundColor: ['loaded'],
+  },
 }
 
