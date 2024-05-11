@@ -1,7 +1,7 @@
 import "../styles/Database.css";
 import React from 'react';
 import Axios from 'axios';
-import {flexRender, getPaginationRowModel, getCoreRowModel, getFilteredRowModel, useReactTable, } from '@tanstack/react-table';
+import {createColumnHelper, flexRender, getPaginationRowModel, getCoreRowModel, getFilteredRowModel, useReactTable, } from '@tanstack/react-table';
 import {Menu} from '@headlessui/react'
 //MAKE TABLE INTO COMPONENT
 //DO NOT USE FLOWBITE, IT HAS AN ISSUE WITH HOW EARLY JAVASCRIPT RUNS DOMCONTENTLOADED AND WILL NOT WORK AFTER FIRST RENDER
@@ -13,7 +13,6 @@ function Databases(){
         try {
             Axios.get("/test").then((response) => {
                 ObjectConversion(response.data.rows);
-                //setarrayData(response.data.rows);
             })
         } catch (err){
             console.log(err);
@@ -41,11 +40,61 @@ function Databases(){
         password: false
     });
 
+    var columnVis = React.useRef({
+        first_name: true,
+        last_name: true,
+        email: true,
+        address: true,
+        phone: true,
+        access: true,
+        password: false
+    });
+
+    var dropDownLabels = React.useRef({
+        columnSelectLabel: "First Name",
+        pageCountLabel: "50",
+        apiLabel: "Entry"
+    });
+
+    var selPerson = React.useRef({
+        first_name: "",
+        last_name: "",
+        email: "",
+        address: "",
+        phone: "",
+        access: "",
+        password: ""
+    })
+    function setSelPerson(aPerson){
+        console.log(aPerson)
+        selPerson.current.first_name  = aPerson.first_name;
+        selPerson.current.last_name  = aPerson.last_name;
+        selPerson.current.email  = aPerson.email;
+        selPerson.current.address  = aPerson.address;
+        selPerson.current.phone  = aPerson.phone;
+        selPerson.current.access  = aPerson.access;
+        selPerson.current.password  = aPerson.password;
+
+        if (!formVis)
+            {setFormVis(true);}
+        else {setPagination({...pagination})} //temporary solution to force a re render
+    }
+
+    React.useEffect(() => {
+        const formInputs = document.getElementsByClassName("formInput")
+        formInputs[0].value = selPerson.current.first_name
+        formInputs[1].value = selPerson.current.last_name
+        formInputs[2].value = selPerson.current.email
+        formInputs[3].value = selPerson.current.address
+        formInputs[4].value = selPerson.current.phone
+        formInputs[5].value = selPerson.current.access
+        formInputs[6].value = selPerson.current.password
+    })
+
     //converts an array of arrays into an array of objects, because god forbid I can't use an array index as the accessorKey 
     function ObjectConversion(arrayData){
         var data = []
         if (arrayData){
-            console.log(arrayData);
             arrayData.forEach(row => {
                 var object = {
                     "first_name": row[1],
@@ -62,6 +111,7 @@ function Databases(){
         }
     }
 
+    const columnHelper = createColumnHelper();
     //defines what the columns will display and what type of information is tied to them
     const columns = [
         {
@@ -91,7 +141,12 @@ function Databases(){
         {
             accessorKey: "password",
             header: "Password",
-        },
+        }, columnHelper.display({
+            id:"selectButton",
+            header: "Select Info",
+            cell:(props) => <input type="button" value="transfer" id={props.row} onClick={() => {
+                setSelPerson(props.row.original)}} className="hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md"/> 
+        })
     ]
 
     //columns and data are required options, while getCoreRowModel allows filtering, sorting, etc.
@@ -111,22 +166,6 @@ function Databases(){
         oncolumnVisibilityChange: setColumnVisibility,
     })
 
-    var columnVis = React.useRef({
-        first_name: true,
-        last_name: true,
-        email: true,
-        address: true,
-        phone: true,
-        access: true,
-        password: false
-    });
-
-    var dropDownLabels = React.useRef({
-        columnSelectLabel: "First Name",
-        pageCountLabel: "50"
-    });
-
-    console.log(dropDownLabels)
     function DropdownItem(prop){
         //JESUS CHRIST I spent so long and this visibilty per column
         //basic jist is, if there is something that relies on 2 usestates being changed, find another method to get what you want without using 1 of the usestates
@@ -158,6 +197,11 @@ function Databases(){
         );
     }
 
+    function ApiButton(prop){
+        return(
+            <input type="button" onClick={() => {dropDownLabels.current.apiLabel = prop.value}} className="hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md" value={prop.value}/>
+        );
+    }
     return(
         <div id="body">
             <div className="table-section">
@@ -293,22 +337,38 @@ function Databases(){
             in this case, I wanted the width to be 0vw AFTER the divs height was 0vh, which relied on the first conditional stylesheet as that is the only time when vh would be 0*/}
             <div className="fixed bottom-0">
                 <div type="button" onClick={() => {setFormVis(!formVis)}} id="form-button" className="w-fit border border-b-0 border-black border-solid border-1">brug</div>
-                <div id="databaseForm" className={`${formVis ? "h-[0vh] w-[0vw] [transition:width_200ms_300ms,height_300ms_0ms]" : "h-[10vh] w-[100vw] [transition:height_300ms_0ms]"} border-t border-black overflow-hidden`}>
-                    <form>
+                <div id="databaseForm" className={`${formVis ? "h-[10vh] w-[100vw] [transition:height_300ms_0ms]" : "h-[0vh] w-[0vw] [transition:width_200ms_300ms,height_300ms_0ms]"} bg-gray-300 border-t border-black overflow-hidden`}>
+                    <form> 
                         <label>First Name: </label>
-                        <input type="text"/>
+                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.first_name = e.target.value}}/>
                         <label>Last Name: </label>
-                        <input type="text"/>
+                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.last_name = e.target.value}}/>
                         <label>Email: </label>
-                        <input type="text"/>
+                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.email = e.target.value}}/>
                         <label>Address: </label>
-                        <input type="text"/>
+                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.address = e.target.value}}/>
                         <label>Phone: </label>
-                        <input type="text"/>
+                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.phone = e.target.value}}/>
                         <label>Access Level: </label>
-                        <input type="text"/>
+                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.access = e.target.value}}/>
                         <label>Password: </label>
-                        <input type="text"/>
+                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.password = e.target.value}}/>
+                        <input type="button" value="submit" className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {/*finish REST api stuff here */}}/>
+                        <Menu>
+                            {/*ADD RERENDER FOR THIS BUTTON CLICK*/}
+                        <Menu.Button className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md">{dropDownLabels.current.apiLabel}</Menu.Button>
+                            <Menu.Items>
+                                <Menu.Item>
+                                    <ApiButton value="Entry"/>
+                                </Menu.Item>
+                                <Menu.Item>
+                                    <ApiButton value="Edit"/>
+                                </Menu.Item>
+                                <Menu.Item>
+                                    <ApiButton value="Delete"/>
+                                </Menu.Item>
+                            </Menu.Items>
+                    </Menu>
                     </form>
                 </div>
             </div>
