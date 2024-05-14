@@ -10,6 +10,10 @@ function Databases(){
 
      //runs only on first load. Only used to automatically fetch the database data and store it
      React.useEffect(() => {
+        getData()
+    }, []);
+
+    function getData(){
         try {
             Axios.get("/test").then((response) => {
                 ObjectConversion(response.data.rows);
@@ -17,7 +21,71 @@ function Databases(){
         } catch (err){
             console.log(err);
         }
-    }, [])
+    };
+
+    function restUp() {
+        try {
+            Axios({
+                method: 'put',
+                url: '/userUpdate/'+selPerson.current.id,
+                data: {
+                    firstName: selPerson.current.first_name,
+                    lastName: selPerson.current.last_name,
+                    email: selPerson.current.email,
+                    address: selPerson.current.address,
+                    phone: selPerson.current.phone,
+                    access: selPerson.current.access,
+                    password: selPerson.current.password
+                },
+            });
+            getData();
+        } catch(err){
+            console.log(err)
+        }
+    };
+
+    function restPo(){
+        try {
+            Axios({
+                method: 'post',
+                url: '/userCreate/',
+                data: {
+                    firstName: selPerson.current.first_name,
+                    lastName: selPerson.current.last_name,
+                    email: selPerson.current.email,
+                    address: selPerson.current.address,
+                    phone: selPerson.current.phone,
+                    access: selPerson.current.access,
+                    password: selPerson.current.password
+                },
+            });
+            getData();
+        } catch(err){
+            console.log(err)
+        }
+    };
+
+    function restDel(){
+        try {
+            Axios({
+                method: 'delete',
+                url: '/userDelete/'+selPerson.current.id,
+            });
+            getData();
+        } catch(err){
+            console.log(err)
+        }
+    };
+
+    function runApi(){
+        if (selApi === "Update"){
+            restUp()
+        } else if (selApi === "Entry"){
+            restPo()
+        } else if (selApi === "Delete"){
+            restDel()
+        }
+    };
 
     //useState to store the data obtained from the database
     const [data, setData] = React.useState([]);
@@ -40,6 +108,8 @@ function Databases(){
         password: false
     });
 
+    var [selApi, setSelApi] = React.useState()
+
     var columnVis = React.useRef({
         first_name: true,
         last_name: true,
@@ -57,6 +127,7 @@ function Databases(){
     });
 
     var selPerson = React.useRef({
+        id: "",
         first_name: "",
         last_name: "",
         email: "",
@@ -65,8 +136,14 @@ function Databases(){
         access: "",
         password: ""
     })
+
+    function reRender(){
+        setPagination({...pagination})
+    }
+
     function setSelPerson(aPerson){
         console.log(aPerson)
+        selPerson.current.id = aPerson.id;
         selPerson.current.first_name  = aPerson.first_name;
         selPerson.current.last_name  = aPerson.last_name;
         selPerson.current.email  = aPerson.email;
@@ -77,7 +154,7 @@ function Databases(){
 
         if (!formVis)
             {setFormVis(true);}
-        else {setPagination({...pagination})} //temporary solution to force a re render
+        else {reRender()} //temporary solution to force a re render
     }
 
     React.useEffect(() => {
@@ -97,6 +174,7 @@ function Databases(){
         if (arrayData){
             arrayData.forEach(row => {
                 var object = {
+                    "id": row[0],
                     "first_name": row[1],
                     "last_name": row[2],
                     "email": row[3],
@@ -199,7 +277,7 @@ function Databases(){
 
     function ApiButton(prop){
         return(
-            <input type="button" onClick={() => {dropDownLabels.current.apiLabel = prop.value}} className="hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md" value={prop.value}/>
+            <input type="button" onClick={() => {dropDownLabels.current.apiLabel = prop.value; setSelApi(prop.value)}} className="hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md" value={prop.value}/>
         );
     }
     return(
@@ -353,20 +431,19 @@ function Databases(){
                         <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.access = e.target.value}}/>
                         <label>Password: </label>
                         <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.password = e.target.value}}/>
-                        <input type="button" value="submit" className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {/*finish REST api stuff here */}}/>
+                        <input type="button" value="submit" className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {runApi()}}/>
                         <Menu>
-                            {/*ADD RERENDER FOR THIS BUTTON CLICK*/}
-                        <Menu.Button className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md">{dropDownLabels.current.apiLabel}</Menu.Button>
-                            <Menu.Items>
-                                <Menu.Item>
-                                    <ApiButton value="Entry"/>
-                                </Menu.Item>
-                                <Menu.Item>
-                                    <ApiButton value="Edit"/>
-                                </Menu.Item>
-                                <Menu.Item>
-                                    <ApiButton value="Delete"/>
-                                </Menu.Item>
+                        <Menu.Button id="apiSelector" className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md">{dropDownLabels.current.apiLabel}</Menu.Button>
+                        <Menu.Items>
+                            <Menu.Item>
+                                {({ close }) => (<ApiButton onClick={close} value="Entry"/>)}
+                            </Menu.Item>
+                            <Menu.Item>
+                                <ApiButton value="Update"/>
+                            </Menu.Item>
+                            <Menu.Item>
+                                <ApiButton value="Delete"/>
+                            </Menu.Item>
                             </Menu.Items>
                     </Menu>
                     </form>

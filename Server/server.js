@@ -41,6 +41,50 @@ app.get('/test', function(req, res) {
 
 dbConnect();
 
+app.put('/userUpdate/:id', function(req, res) {
+    var id = req.params.id;
+    var sqlins = "UPDATE USERS SET FIRSTNAME = ?, LASTNAME = ?, EMAIL = ?, ADDRESS = ?, PHONE = ?, ACCESSLEVEL = ?, PASSWORD = ? WHERE id = ?";
+    var inserts = [req.body.firstName, req.body.lastName, req.body.email, req.body.address, req.body.phone, req.body.access, req.body.password, id];
+    var sql = mysql.format(sqlins, inserts);
+    connect.execute(sql, function(err, result) {
+        if(err){
+            console.log(err);
+            process.exit(1);
+        }
+        console.log("1 record updated!")
+        res.end()
+    })
+});
+
+app.post('/userCreate', function(req, res) {
+    var sqlins = "INSERT INTO USERS (FIRSTNAME, LASTNAME, EMAIL, ADDRESS, PHONE, ACCESSLEVEL, PASSWORD) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    var inserts = [req.body.firstName, req.body.lastName, req.body.email, req.body.address, req.body.phone, req.body.access, req.body.password];
+    var sql = mysql.format(sqlins, inserts);
+
+    connect.execute(sql, function(err, result) {
+        if(err){console.log(err);
+            process.exit(1);
+        }
+        console.log("1 record created!");
+        res.end();
+    })
+});
+
+app.delete('/userDelete/:id', function(req, res) {
+    var id = req.params.id
+    var sqlins = "DELETE FROM USERS WHERE ID = ?"
+    var inserts = [id]
+    var sql = mysql.format(sqlins, inserts)
+
+    connect.execute(sql, function(err, result) {
+        if(err){console.log(err);
+            process.exit(1);
+        }
+        console.log("1 record deleted!");
+        res.end();
+    })
+});
+
 app.listen(app.get('port'), function() {
     console.log('CORS-enabled web server started: http://localhost:' +app.get('port'));
-})
+});
