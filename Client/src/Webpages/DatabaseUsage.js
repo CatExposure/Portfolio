@@ -8,6 +8,8 @@ import {Menu} from '@headlessui/react'
 
 function Databases(){
 
+    const formInputs = document.getElementsByClassName("formInput")
+
      //runs only on first load. Only used to automatically fetch the database data and store it
      React.useEffect(() => {
         getData()
@@ -158,7 +160,6 @@ function Databases(){
     }
 
     React.useEffect(() => {
-        const formInputs = document.getElementsByClassName("formInput")
         formInputs[0].value = selPerson.current.first_name
         formInputs[1].value = selPerson.current.last_name
         formInputs[2].value = selPerson.current.email
@@ -187,6 +188,17 @@ function Databases(){
             });
             setData(data)
         }
+    }
+
+    function clearForm(){
+        setSelPerson("");
+        formInputs[0].value = "";
+        formInputs[1].value = "";
+        formInputs[2].value = "";
+        formInputs[3].value = "";
+        formInputs[4].value = "";
+        formInputs[5].value = "";
+        formInputs[6].value = "";
     }
 
     const columnHelper = createColumnHelper();
@@ -256,22 +268,22 @@ function Databases(){
         }
         
         return(
-            <li>
-                <input type="checkbox" defaultChecked={table.getColumn(prop.columnName).getIsVisible()} onChange={(e) => {handleChange(e, prop)}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"></input>
-                <label className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black">{prop.text}</label>
-            </li>
+            <div className="flex flex-row">
+                <input type="checkbox" defaultChecked={table.getColumn(prop.columnName).getIsVisible()} onChange={(e) => {handleChange(e, prop)}} className="flex"></input>
+                <label className="flex flex-auto">{prop.text}</label>
+            </div>
         );
     }
 
     function ColumnSelectButton(prop){
         return(
-                <input type="button" value={prop.text} onClick={() => {dropDownLabels.current.columnSelectLabel = prop.text; setColumnFilters([{id: prop.columnName, value: columnFilters[0].value}])}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"/>
+                <input type="button" value={prop.text} onClick={() => {dropDownLabels.current.columnSelectLabel = prop.text; setColumnFilters([{id: prop.columnName, value: columnFilters[0].value}])}} className="flex mr-10"/>
         );
     }
 
     function PageCountButton(prop){
         return(
-            <input type="button" value={prop.value} onClick={() => {dropDownLabels.current.pageCountLabel = prop.value; setPagination({pageSize: parseInt(prop.value), pageIndex: 0})}} className="ui-active:bg-blue-500 ui-active:text-white ui-not-active:bg-white ui-not-active:text-black"/>
+            <input type="button" value={prop.text} onClick={() => {dropDownLabels.current.pageCountLabel = prop.value; setPagination({pageSize: parseInt(prop.value), pageIndex: 0})}} className=""/>
         );
     }
 
@@ -282,14 +294,13 @@ function Databases(){
     }
     return(
         <div id="body">
-            <div className="table-section">
-            <div>
-                    <input type="text" className="userInputFilter" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
+            <div className="table-section relative justify-between gap-10 flex flex-auto flex-row">
+                    <input type="text" className="userInputFilter relative flex flex m" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
                         e => setColumnFilters([{id: columnFilters[0].id, value: e.target.value}])}></input>
-                    <Menu>
-                        <Menu.Button>{dropDownLabels.current.columnSelectLabel}</Menu.Button>
-                        <Menu.Items>
-                            <Menu.Item>
+                    <Menu as="div" className="flex flex-row z-10 px-1 rounded-md bg-gray-300">
+                        <Menu.Button className="flex">Sorting by: {dropDownLabels.current.columnSelectLabel}</Menu.Button>
+                        <Menu.Items className="absolute mt-8 bg-gray-400 flex flex-col border border-solid border-2 border-black rounded-md">
+                            <Menu.Item className="flex flex-row">
                                 <ColumnSelectButton columnName="first_name" text="First Name"/>
                             </Menu.Item>
                             <Menu.Item>
@@ -312,9 +323,9 @@ function Databases(){
                             </Menu.Item>
                         </Menu.Items>
                     </Menu>
-                    <Menu>
-                        <Menu.Button>Drop</Menu.Button>
-                        <Menu.Items>
+                    <Menu as="div" className="flex z-10 px-1 rounded-md bg-gray-300">
+                        <Menu.Button>Visible Columns</Menu.Button>
+                        <Menu.Items className="absolute mt-8 bg-gray-400 flex flex-col border border-solid border-2 border-black rounded-md">
                             <Menu.Item>
                                 <DropdownItem columnName="first_name" text="First Name"/>
                             </Menu.Item>
@@ -338,24 +349,23 @@ function Databases(){
                             </Menu.Item>
                         </Menu.Items>
                     </Menu>
-                    <Menu>
-                        <Menu.Button>{dropDownLabels.current.pageCountLabel} indexes</Menu.Button>
-                            <Menu.Items>
+                    <Menu as="div" className="flex z-10 px-1 rounded-md bg-gray-300">
+                        <Menu.Button>{dropDownLabels.current.pageCountLabel} Entries Per Page</Menu.Button>
+                            <Menu.Items className="absolute mt-8 bg-gray-400 flex flex-col border border-solid border-2 border-black rounded-md">
                                 <Menu.Item>
-                                    <PageCountButton value="25"/>
+                                    <PageCountButton value="25" text="25 Entries"/>
                                 </Menu.Item>
                                 <Menu.Item>
-                                    <PageCountButton value="50"/>
+                                    <PageCountButton value="50" text="50 Entries"/>
                                 </Menu.Item>
                                 <Menu.Item>
-                                    <PageCountButton value="75"/>
+                                    <PageCountButton value="75" text="75 Entries"/>
                                 </Menu.Item>
                                 <Menu.Item>
-                                    <PageCountButton value="100"/>
+                                    <PageCountButton value="100" text="100 Entries"/>
                                 </Menu.Item>
                             </Menu.Items>
                     </Menu>
-                </div>
                 </div>
                 <div>
                     {/*This is the pagination section, with all the things related to pagination stuff
@@ -431,6 +441,7 @@ function Databases(){
                         <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.access = e.target.value}}/>
                         <label>Password: </label>
                         <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.password = e.target.value}}/>
+                        <input type="button" value="Clear" className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {clearForm()}}/>
                         <input type="button" value="submit" className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {runApi()}}/>
                         <Menu>
                         <Menu.Button id="apiSelector" className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md">{dropDownLabels.current.apiLabel}</Menu.Button>
