@@ -2,7 +2,7 @@ import "../styles/Database.css";
 import React from 'react';
 import Axios from 'axios';
 import {createColumnHelper, flexRender, getPaginationRowModel, getCoreRowModel, getFilteredRowModel, useReactTable, } from '@tanstack/react-table';
-import {Menu} from '@headlessui/react'
+import {Menu, Dialog} from '@headlessui/react'
 //MAKE TABLE INTO COMPONENT
 //DO NOT USE FLOWBITE, IT HAS AN ISSUE WITH HOW EARLY JAVASCRIPT RUNS DOMCONTENTLOADED AND WILL NOT WORK AFTER FIRST RENDER
 
@@ -84,8 +84,6 @@ function Databases(){
             restUp()
         } else if (selApi === "Entry"){
             restPo()
-        } else if (selApi === "Delete"){
-            restDel()
         }
     };
 
@@ -141,6 +139,12 @@ function Databases(){
 
     function reRender(){
         setPagination({...pagination})
+    }
+
+    function delPerson(aPerson){
+        //ADD A HEADLESSUI DIALOG COMPONENT FOR CONFIRMATION WINDOW
+            selPerson.current.id = aPerson.id;
+            restDel();
     }
 
     function setSelPerson(aPerson){
@@ -234,8 +238,10 @@ function Databases(){
         }, columnHelper.display({
             id:"selectButton",
             header: "Select Info",
-            cell:(props) => <input type="button" value="transfer" id={props.row} onClick={() => {
+            cell:(props) => <div><input type="button" value="transfer" id={props.row} onClick={() => {
                 setSelPerson(props.row.original)}} className="hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md"/> 
+                <input type="button" value="Delete" id={props.row} onClick={() => {
+                delPerson(props.row.original)}} className="hover:bg-red-400 active:bg-red-200 bg-red-300 border border-solid border-black border-1 rounded-md"/></div>
         })
     ]
 
@@ -289,15 +295,15 @@ function Databases(){
 
     function ApiButton(prop){
         return(
-            <input type="button" onClick={() => {dropDownLabels.current.apiLabel = prop.value; setSelApi(prop.value)}} className="hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md" value={prop.value}/>
+            <input type="button" onClick={() => {dropDownLabels.current.apiLabel = prop.value; setSelApi(prop.value)}} className="mx-1 hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md" value={prop.value}/>
         );
     }
     return(
         <div id="body">
             <div className="table-section relative justify-between gap-10 flex flex-auto flex-row">
-                    <input type="text" className="userInputFilter relative flex flex m" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
+                    <input type="text" placeholder="Type here to filter" className="border border-black border-2 bg-gray-300  rounded-md text-black placeholder:text-black" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
                         e => setColumnFilters([{id: columnFilters[0].id, value: e.target.value}])}></input>
-                    <Menu as="div" className="flex flex-row z-10 px-1 rounded-md bg-gray-300">
+                    <Menu as="div" className="border border-black border-1 flex flex-row z-10 px-1 rounded-md bg-gray-300">
                         <Menu.Button className="flex">Sorting by: {dropDownLabels.current.columnSelectLabel}</Menu.Button>
                         <Menu.Items className="absolute mt-8 bg-gray-400 flex flex-col border border-solid border-2 border-black rounded-md">
                             <Menu.Item className="flex flex-row">
@@ -323,7 +329,7 @@ function Databases(){
                             </Menu.Item>
                         </Menu.Items>
                     </Menu>
-                    <Menu as="div" className="flex z-10 px-1 rounded-md bg-gray-300">
+                    <Menu as="div" className="border border-black border-1 flex z-10 px-1 rounded-md bg-gray-300">
                         <Menu.Button>Visible Columns</Menu.Button>
                         <Menu.Items className="absolute mt-8 bg-gray-400 flex flex-col border border-solid border-2 border-black rounded-md">
                             <Menu.Item>
@@ -349,7 +355,7 @@ function Databases(){
                             </Menu.Item>
                         </Menu.Items>
                     </Menu>
-                    <Menu as="div" className="flex z-10 px-1 rounded-md bg-gray-300">
+                    <Menu as="div" className="border border-black border-1 flex z-10 px-1 rounded-md bg-gray-300">
                         <Menu.Button>{dropDownLabels.current.pageCountLabel} Entries Per Page</Menu.Button>
                             <Menu.Items className="absolute mt-8 bg-gray-400 flex flex-col border border-solid border-2 border-black rounded-md">
                                 <Menu.Item>
@@ -367,28 +373,28 @@ function Databases(){
                             </Menu.Items>
                     </Menu>
                 </div>
-                <div>
-                    {/*This is the pagination section, with all the things related to pagination stuff
+                {/*This is the pagination section, with all the things related to pagination stuff
                     fairly basic, this just utilizes a useRef object and a useState object
                     useRef object is used as a label, essentially just storing whatever value the user clicked on and setting that value as the dropdown button label
                     the useState object allows us to set the number of entries per page, and as so create a max and min fot the available pages (min will always be 1)*/}
-                        <label>page </label>
-                        {table.getState().pagination.pageIndex + 1}<label> of </label>
-                        {table.getPageCount()}
-                    </div>
-                    <div>
-                        <input type="button" value="Previous Page" onClick={() => {
+                    <div className="flex justify-center my-2 gap-3">
+                        <input type="button" value="Previous Page" className="border border-black border-1 bg-gray-300 rounded-md px-1" onClick={() => {
                             setPagination({pageSize: pagination.pageSize, pageIndex: pagination.pageIndex - 1});
                         }}
                         disabled={
                             pagination.pageIndex === 0
                         }/>
-                        <input type="button" value="Next Page" onClick={() => {
+                        <input type="button" value="Next Page" className="border border-black border-1 bg-gray-300 rounded-md px-1" onClick={() => {
                             setPagination({pageSize: pagination.pageSize, pageIndex: pagination.pageIndex + 1});
                         }}
                         disabled={
                             pagination.pageIndex === table.getPageCount() - 1
                         }/>
+                    </div>
+                    <div className="flex justify-center my-1 gap-1">
+                        <label>page </label>
+                        {table.getState().pagination.pageIndex + 1}<label> of </label>
+                        {table.getPageCount()}
                     </div>
                 <div className='table-container'>
                 <table>
@@ -425,35 +431,46 @@ function Databases(){
             in this case, I wanted the width to be 0vw AFTER the divs height was 0vh, which relied on the first conditional stylesheet as that is the only time when vh would be 0*/}
             <div className="fixed bottom-0">
                 <div type="button" onClick={() => {setFormVis(!formVis)}} id="form-button" className="w-fit border border-b-0 border-black border-solid border-1">brug</div>
-                <div id="databaseForm" className={`${formVis ? "h-[10vh] w-[100vw] [transition:height_300ms_0ms]" : "h-[0vh] w-[0vw] [transition:width_200ms_300ms,height_300ms_0ms]"} bg-gray-300 border-t border-black overflow-hidden`}>
-                    <form> 
-                        <label>First Name: </label>
-                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.first_name = e.target.value}}/>
-                        <label>Last Name: </label>
-                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.last_name = e.target.value}}/>
+                <div id="databaseForm" className={`${formVis ? "h-[13vh] w-[100vw] [transition:height_300ms_0ms]" : "h-[0vh] w-[0vw] [transition:width_200ms_300ms,height_300ms_0ms]"} bg-gray-300 border-t border-black overflow-hidden`}>
+                    <form className="flex flex-wrap my-2"> 
+                    <div className="flex my-2">
+                        <label className="flex">First Name: </label>
+                        <input type="text" className="formInput flex bg-white rounded-md mx-2 pl-2" onChange={(e) => {selPerson.current.first_name = e.target.value}}/>
+                    </div>
+                    <div className="flex my-2">
+                        <label className="flex">Last Name: </label>
+                        <input type="text" className="formInput flex bg-white rounded-md mx-2 pl-2" onChange={(e) => {selPerson.current.last_name = e.target.value}}/>
+                    </div>
+                    <div className="flex my-2">  
                         <label>Email: </label>
-                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.email = e.target.value}}/>
+                        <input type="text" className="formInput bg-white rounded-md mx-2 pl-2" onChange={(e) => {selPerson.current.email = e.target.value}}/>
+                    </div>
+                    <div className="flex my-2">
                         <label>Address: </label>
-                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.address = e.target.value}}/>
+                        <input type="text" className="formInput bg-white rounded-md mx-2 pl-2" onChange={(e) => {selPerson.current.address = e.target.value}}/>
+                    </div>
+                    <div className="flex my-2">
                         <label>Phone: </label>
-                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.phone = e.target.value}}/>
+                        <input type="text" className="formInput bg-white rounded-md mx-2 pl-2" onChange={(e) => {selPerson.current.phone = e.target.value}}/>
+                    </div>
+                    <div className="flex my-2">
                         <label>Access Level: </label>
-                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.access = e.target.value}}/>
+                        <input type="text" className="formInput bg-white rounded-md mx-2 pl-2" onChange={(e) => {selPerson.current.access = e.target.value}}/>
+                    </div>
+                    <div className="flex my-2">
                         <label>Password: </label>
-                        <input type="text" className="formInput bg-gray-300" onChange={(e) => {selPerson.current.password = e.target.value}}/>
-                        <input type="button" value="Clear" className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {clearForm()}}/>
-                        <input type="button" value="submit" className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {runApi()}}/>
+                        <input type="text" className="formInput bg-white rounded-md mx-2 pl-2" onChange={(e) => {selPerson.current.password = e.target.value}}/>
+                    </div>
+                        <input type="button" value="Clear" className="mx-2 hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {clearForm()}}/>
+                        <input type="button" value="submit" className="mx-2 hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {runApi()}}/>
                         <Menu>
-                        <Menu.Button id="apiSelector" className="hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md">{dropDownLabels.current.apiLabel}</Menu.Button>
+                        <Menu.Button id="apiSelector" className="mx-2 hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md">{dropDownLabels.current.apiLabel}</Menu.Button>
                         <Menu.Items>
                             <Menu.Item>
-                                {({ close }) => (<ApiButton onClick={close} value="Entry"/>)}
+                                <ApiButton value="Entry"/>
                             </Menu.Item>
                             <Menu.Item>
                                 <ApiButton value="Update"/>
-                            </Menu.Item>
-                            <Menu.Item>
-                                <ApiButton value="Delete"/>
                             </Menu.Item>
                             </Menu.Items>
                     </Menu>
