@@ -73,6 +73,7 @@ function Databases(){
                 method: 'delete',
                 url: '/userDelete/'+selPerson.current.id,
             });
+            clearForm()
             getData();
         } catch(err){
             console.log(err)
@@ -141,14 +142,7 @@ function Databases(){
         setPagination({...pagination})
     }
 
-    function delPerson(aPerson){
-        //ADD A HEADLESSUI DIALOG COMPONENT FOR CONFIRMATION WINDOW
-            selPerson.current.id = aPerson.id;
-            restDel();
-    }
-
-    function setSelPerson(aPerson){
-        console.log(aPerson)
+    function setSelPerson(aPerson, autoOpen){
         selPerson.current.id = aPerson.id;
         selPerson.current.first_name  = aPerson.first_name;
         selPerson.current.last_name  = aPerson.last_name;
@@ -158,9 +152,11 @@ function Databases(){
         selPerson.current.access  = aPerson.access;
         selPerson.current.password  = aPerson.password;
 
-        if (!formVis)
-            {setFormVis(true);}
-        else {reRender()} //temporary solution to force a re render
+        if (autoOpen){
+            if (!formVis)
+                {setFormVis(true);}
+            else {reRender()} //temporary solution to force a re render
+        }
     }
 
     React.useEffect(() => {
@@ -195,14 +191,14 @@ function Databases(){
     }
 
     function clearForm(){
-        setSelPerson("");
-        formInputs[0].value = "";
-        formInputs[1].value = "";
-        formInputs[2].value = "";
-        formInputs[3].value = "";
-        formInputs[4].value = "";
-        formInputs[5].value = "";
-        formInputs[6].value = "";
+        selPerson.current.id = "";
+        selPerson.current.first_name  = "";
+        selPerson.current.last_name  = "";
+        selPerson.current.email  = "";
+        selPerson.current.address  = "";
+        selPerson.current.phone  = "";
+        selPerson.current.access  = "";
+        selPerson.current.password  = "";
     }
 
     const columnHelper = createColumnHelper();
@@ -239,9 +235,9 @@ function Databases(){
             id:"selectButton",
             header: "Select Info",
             cell:(props) => <div><input type="button" value="transfer" id={props.row} onClick={() => {
-                setSelPerson(props.row.original)}} className="hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md"/> 
+                setSelPerson(props.row.original, true)}} className="hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md"/> 
                 <input type="button" value="Delete" id={props.row} onClick={() => {
-                delPerson(props.row.original)}} className="hover:bg-red-400 active:bg-red-200 bg-red-300 border border-solid border-black border-1 rounded-md"/></div>
+                setSelPerson(props.row.original, false); setdialogOpen(true)}} className="hover:bg-red-400 active:bg-red-200 bg-red-300 border border-solid border-black border-1 rounded-md"/></div>
         })
     ]
 
@@ -261,6 +257,25 @@ function Databases(){
         onColumnFilterChange: setColumnFilters,
         oncolumnVisibilityChange: setColumnVisibility,
     })
+
+    const [dialogOpen, setdialogOpen] = React.useState(false)
+
+    function ConfirmationBox(aPerson){
+        return(
+            <Dialog open={dialogOpen} onClose={() => setdialogOpen(false)} className="relative z-50">
+                <div className="fixed inset-0 flex w-screen items-center justify-center p-4">
+                <Dialog.Panel className="space-y-4 border bg-gray-200 p-12">
+                    <Dialog.Title>Delete Entry</Dialog.Title>
+                    <Dialog.Description>Are you sure you want to delete user {selPerson.current.first_name} {selPerson.current.last_name}?</Dialog.Description>
+                    <div className="flex gap-4">
+                        <button onClick={() => {setdialogOpen(false); restDel()}}>Yes</button>
+                        <button onClick={() => {setdialogOpen(false); clearForm()}}>No</button>
+                    </div>
+                </Dialog.Panel>
+                </div>
+            </Dialog>
+        );
+    }
 
     function DropdownItem(prop){
         //JESUS CHRIST I spent so long and this visibilty per column
@@ -300,6 +315,7 @@ function Databases(){
     }
     return(
         <div id="body">
+            <ConfirmationBox/>
             <div className="table-section relative justify-between gap-10 flex flex-auto flex-row">
                     <input type="text" placeholder="Type here to filter" className="border border-black border-2 bg-gray-300  rounded-md text-black placeholder:text-black" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
                         e => setColumnFilters([{id: columnFilters[0].id, value: e.target.value}])}></input>
