@@ -6,11 +6,13 @@ import Contact from './Webpages/Contact';
 import PageNotFound from './Webpages/404Page'
 import SpotifySongs from "./Webpages/SpotifySongs"
 import NavBar from './Components/NavBar';
+import BannerSection from './Components/Banner';
 import {Route, Routes} from 'react-router-dom';
 
 function App() {
   return (
     <div className="App">
+      <BannerSection bannerClassName="flex flex-row w-screen h-fit bg-black py-2" imgClassName="h-28"/>
       <NavBar />
       <Routes>
         <Route exact path="*" Component={PageNotFound}/>

@@ -3,7 +3,8 @@ import React from 'react';
 import Axios from 'axios';
 import {createColumnHelper, flexRender, getPaginationRowModel, getCoreRowModel, getFilteredRowModel, useReactTable, } from '@tanstack/react-table';
 import {Menu, Dialog} from '@headlessui/react'
-//MAKE TABLE INTO COMPONENT
+import {ArrowsUpDownIcon} from '@heroicons/react/24/outline';
+//ISSUE WITH BEING ON 2ND OR HIGHER PAGE AND FILTERING
 //DO NOT USE FLOWBITE, IT HAS AN ISSUE WITH HOW EARLY JAVASCRIPT RUNS DOMCONTENTLOADED AND WILL NOT WORK AFTER FIRST RENDER
 
 function Databases(){
@@ -235,9 +236,9 @@ function Databases(){
             id:"selectButton",
             header: "Select Info",
             cell:(props) => <div><input type="button" value="transfer" id={props.row} onClick={() => {
-                setSelPerson(props.row.original, true)}} className="hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md"/> 
+                setSelPerson(props.row.original, true)}} className="hover:cursor-pointer hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md"/> 
                 <input type="button" value="Delete" id={props.row} onClick={() => {
-                setSelPerson(props.row.original, false); setdialogOpen(true)}} className="hover:bg-red-400 active:bg-red-200 bg-red-300 border border-solid border-black border-1 rounded-md"/></div>
+                setSelPerson(props.row.original, false); setdialogOpen(true)}} className="hover:cursor-pointer hover:bg-red-400 active:bg-red-200 bg-red-300 border border-solid border-black border-1 rounded-md"/></div>
         })
     ]
 
@@ -314,7 +315,7 @@ function Databases(){
         );
     }
     return(
-        <div id="body">
+        <div id="body" className="min-h-screen h-[100%] bg-gray-400 text-lg pt-10">
             <ConfirmationBox/>
             <div className="table-section relative justify-between gap-10 flex flex-auto flex-row">
                     <input type="text" placeholder="Type here to filter" className="border border-black border-2 bg-gray-300  rounded-md text-black placeholder:text-black" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
@@ -394,13 +395,13 @@ function Databases(){
                     useRef object is used as a label, essentially just storing whatever value the user clicked on and setting that value as the dropdown button label
                     the useState object allows us to set the number of entries per page, and as so create a max and min fot the available pages (min will always be 1)*/}
                     <div className="flex justify-center my-2 gap-3">
-                        <input type="button" value="Previous Page" className="border border-black border-1 bg-gray-300 rounded-md px-1" onClick={() => {
+                        <input type="button" value="Previous Page" className="hover:cursor-pointer border border-black border-1 bg-gray-300 rounded-md px-1" onClick={() => {
                             setPagination({pageSize: pagination.pageSize, pageIndex: pagination.pageIndex - 1});
                         }}
                         disabled={
                             pagination.pageIndex === 0
                         }/>
-                        <input type="button" value="Next Page" className="border border-black border-1 bg-gray-300 rounded-md px-1" onClick={() => {
+                        <input type="button" value="Next Page" className="hover:cursor-pointer border border-black border-1 bg-gray-300 rounded-md px-1" onClick={() => {
                             setPagination({pageSize: pagination.pageSize, pageIndex: pagination.pageIndex + 1});
                         }}
                         disabled={
@@ -412,8 +413,8 @@ function Databases(){
                         {table.getState().pagination.pageIndex + 1}<label> of </label>
                         {table.getPageCount()}
                     </div>
-                <div className='table-container'>
-                <table>
+                <div className='z-5 table-container mt-10 pb-10'>
+                <table className="bg-white shadow-[0_0_20px_10px_rgba(255,255,255,.5),0_0_40px_20px_rgba(0,255,255,.3)]">
                 <tbody>
                     {table.getHeaderGroups().map(headerGroup => <tr className = "tr" key={headerGroup.id}>
                         {headerGroup.headers.map(
@@ -446,7 +447,7 @@ function Databases(){
             more specifically, it seems having a transition in the "general" css stylesheet section (the style right after both of the conditionals) will not function correctly if you have another transition depending on a conditional
             in this case, I wanted the width to be 0vw AFTER the divs height was 0vh, which relied on the first conditional stylesheet as that is the only time when vh would be 0*/}
             <div className="fixed bottom-0">
-                <div type="button" onClick={() => {setFormVis(!formVis)}} id="form-button" className="w-fit border border-b-0 border-black border-solid border-1">brug</div>
+                <div type="button" onClick={() => {setFormVis(!formVis)}} id="form-button" className="hover:cursor-pointer w-fit border border-b-0 border-black border-solid border-1 bg-white"><ArrowsUpDownIcon className="h-10"/></div>
                 <div id="databaseForm" className={`${formVis ? "h-[13vh] w-[100vw] [transition:height_300ms_0ms]" : "h-[0vh] w-[0vw] [transition:width_200ms_300ms,height_300ms_0ms]"} bg-gray-300 border-t border-black overflow-hidden`}>
                     <form className="flex flex-wrap my-2"> 
                     <div className="flex my-2">
@@ -477,10 +478,10 @@ function Databases(){
                         <label>Password: </label>
                         <input type="text" className="formInput bg-white rounded-md mx-2 pl-2" onChange={(e) => {selPerson.current.password = e.target.value}}/>
                     </div>
-                        <input type="button" value="Clear" className="mx-2 hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {clearForm()}}/>
-                        <input type="button" value="submit" className="mx-2 hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {runApi()}}/>
+                        <input type="button" value="Clear" className="hover:cursor-pointer mx-2 hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {clearForm()}}/>
+                        <input type="button" value="submit" className="hover:cursor-pointer mx-2 hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md" onClick={() => {runApi()}}/>
                         <Menu>
-                        <Menu.Button id="apiSelector" className="mx-2 hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md">{dropDownLabels.current.apiLabel}</Menu.Button>
+                        <Menu.Button id="apiSelector" className="hover:cursor-pointer mx-2 hover:bg-gray-400 active:bg-gray-200 bg-white border border-solid border-black border-1 rounded-md">{dropDownLabels.current.apiLabel}</Menu.Button>
                         <Menu.Items>
                             <Menu.Item>
                                 <ApiButton value="Entry"/>
