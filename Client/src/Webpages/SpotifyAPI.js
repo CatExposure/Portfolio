@@ -2,7 +2,7 @@ import "../styles/SpotifyAPI.css"
 import React from 'react';
 import {useEffect, useState} from "react";
 import axios from 'axios';
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 /*
 TO DO:
     change artist to songs if possible, mainly with the ability to play music, as well as show song name

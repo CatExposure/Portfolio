@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react'
-import Axios from 'axios'
-
+import Carousel from '../Components/Carousel'
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 function Home(){
     return(
-        <div>
+        <div className="bg-gray-400 min-h-screen max-h-full">
+            <Carousel/>
         </div>
     )
 }

@@ -5,6 +5,7 @@ import {useRef} from 'react';
 import "../styles/SpotifySongs.css"
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
 
+
 //grabs the token and artistId so that we can find the tracks for the particular artist the user clicked on
 //we use 'useRef' for the audioplayer, otherwise every re-render will create another instance of an audioPlayer
 //all useState force a re-render, which is crucial as data is not able to be manipulated once the program has rendered

@@ -4,6 +4,7 @@ import Axios from 'axios';
 import {createColumnHelper, flexRender, getPaginationRowModel, getCoreRowModel, getFilteredRowModel, useReactTable, } from '@tanstack/react-table';
 import {Menu, Dialog} from '@headlessui/react'
 import {ArrowsUpDownIcon} from '@heroicons/react/24/outline';
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 //ISSUE WITH BEING ON 2ND OR HIGHER PAGE AND FILTERING
 //DO NOT USE FLOWBITE, IT HAS AN ISSUE WITH HOW EARLY JAVASCRIPT RUNS DOMCONTENTLOADED AND WILL NOT WORK AFTER FIRST RENDER
 
