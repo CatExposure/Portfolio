@@ -53,10 +53,9 @@ function Carousel(){
             <button className="absolute w-8 ml-2 left-0 inset-y-0 rounded-[50%] p-[-1] h-fit my-auto text-white z-10" onClick={()=>{stopSlider(); slideLeft()}}><ArrowLeftCircleIcon/></button>
                 {/**Right, so basically some ***hole decided hey, wouldnt it be a cool idea if the images automatically shrunk to their max resolution, 
                  *even if the user is trying to stretch it? what a ****head. Whenever stretching an image, add flex-grow/flex-shrink and make sure they are 0*/}
-                 <div className="flex">
             {carImages.map((img, index) => {
                 return(
-                <img onMouseEnter={()=>stopSlider()} onMouseLeave={()=>startSlider()} className={`shrink-0 grow-0 [transition:transform_800ms] translate-x-[${-100 * (slide)}%] w-full`} src={img.src} alt={img.alt} key={index}></img>)})}</div>
+                <img onMouseEnter={()=>stopSlider()} onMouseLeave={()=>startSlider()} className={`shrink-0 grow-0 [transition:transform_800ms] translate-x-[${-100 * (slide)}%] w-full`} src={img.src} alt={img.alt} key={index}></img>)})}
                     <button className="absolute w-8 mr-2 right-0 inset-y-0 rounded-[50%] h-fit my-auto text-white z-10" onClick={()=>{stopSlider(); slideRight()}}><ArrowRightCircleIcon/></button>
                 </div>
             <div className="absolute flex flex-row gap-2 justify-center bottom-3 right-[auto]">
