@@ -1,4 +1,3 @@
-import "../styles/SpotifyAPI.css"
 import React from 'react';
 import {useEffect, useState} from "react";
 import axios from 'axios';
@@ -153,17 +152,15 @@ function SpotifyAPI(){
             )
         } else {
             return artists.map(item => (
-                    <div key={item.id}className="artistSection" onClick={() => {
+                    <div className="flex border h-[20vh] border-black border-solid w-[50%] my-5 transition-all bg-gray-600 hover:bg-gray-500 hover:h-[23vh] hover:ml-10" key={item.id} onClick={() => {
                         window.sessionStorage.setItem("artistId", item.id)
                         window.location.assign("http://localhost:3000/SpotifySongs");
                     }}>
-                        <div className="artistImage">
-                           {item.images.length ? <img src={item.images[0].url} alt=""/> : <div>No Image</div>}
-                        </div>
-                        <div className="artistInfo">
-                            <p className="artistName">{item.name}</p>
-                            <p className="artistFollowers">Followers: {item.followers.total} </p>
-                            <p className="artistGenres">Genres: {renderGenres(item)}</p>
+                        {item.images.length ? <img className="h-full" src={item.images[0].url} alt=""/> : <div>No Image</div>}
+                        <div className="ml-5">
+                            <p className="text-6xl mb-3">{item.name}</p>
+                            <p className="text-xl">Followers: {item.followers.total} </p>
+                            <p className="text-xl">Genres: {renderGenres(item)}</p>
                         </div>
                     </div>
                 
@@ -189,7 +186,7 @@ function SpotifyAPI(){
 
     //allows the user to login to spotify (or log out if they are already logged in)
     const LoginOut = () => {
-        if (!token) {
+        if (token === null) {
             return (
                 <div>
                     <a href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`}>Login to Spotify</a> 
@@ -198,7 +195,7 @@ function SpotifyAPI(){
         } else {
             return (
             <div>
-                <button onClick={logout}>Logout</button>
+                <button className="text-2xl border border-black rounded-md p-1 bg-gray-600" onClick={logout}>Log out</button>
             </div>
             )
         }
@@ -207,22 +204,23 @@ function SpotifyAPI(){
     //displays the search text input as well as a message informing the user to login to use the spoitfy API if they are not
     //also displays all the render components
     return(
-        <div>
-            <h1>Spotify!</h1>
+        <div className="bg-gray-400 min-h-screen max-h-full">
+            <div className="ml-20 flex gap-10">
             {LoginOut()}
             {token ? 
-                <form> 
-                    <p>Search here: </p><input type="text" onChange={e => setSearchKey(e.target.value)}/>
+                <form className="flex"> 
+                    <p className="text-black text-2xl mr-3">Search here: </p><input className="text-black border border-black bg-gray-500 rounded-md pl-2" type="text" placeholder="Search Artist Here" onChange={e => setSearchKey(e.target.value)}/>
                 </form>
 
                 : <h2>Please login to use search feature</h2>
             }
+            </div>
             <div id='artistSection'>
 
             </div>
             {renderResultsMessage()}
             {renderError()}
-            <div className="artistResults">
+            <div className="ml-5">
                 {renderArtists()}
             </div>
             

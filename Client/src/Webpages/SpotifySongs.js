@@ -2,7 +2,7 @@ import React from 'react';
 import {useEffect, useState} from "react";
 import axios from 'axios';
 import {useRef} from 'react';
-import "../styles/SpotifySongs.css"
+import {PlayCircleIcon, PauseCircleIcon} from '@heroicons/react/24/outline';
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
 
 
@@ -17,7 +17,6 @@ function SpotifySongs() {
     let artistId = window.sessionStorage.getItem("artistId");
     let token = window.localStorage.getItem("token");
     const audioPlayer = useRef(new Audio());
-    let buttonImg
 
     const [ArtistTracks, setArtistTracks] = useState([]);
     const [isPlaying, setPlaying] = useState(false);
@@ -40,13 +39,12 @@ function SpotifySongs() {
 
     function playAudio() {
         audioPlayer.current.play()
-        buttonImg = require("../Images/pauseButton.png")
     }
 
     function pauseAudio() {
         audioPlayer.current.pause()
-        buttonImg = require("../Images/playButton.png")
     }
+
     //had to change the get request as the Spotify API params dont support 'top-tracks'. Also, country is for some reason a required param
     const getArtistAlbum = async() => {
         try{
@@ -70,7 +68,7 @@ function SpotifySongs() {
         var minutes = Math.floor(mS / 60000);
         var seconds = ((mS % 60000) / 1000).toFixed(0);
         return (
-            seconds == 60 ?
+            seconds === 60 ?
             (minutes+1) + ":00" :
             minutes + ":" + (seconds < 10 ? "0" : "") + seconds
           );
@@ -78,30 +76,28 @@ function SpotifySongs() {
 
     function changeButtonImg(url) {
         if (url === audioPlayer.current.src) {
-            isPlaying ? buttonImg = require("../Images/pauseButton.png") : require("../Images/playButton.png")
-            return buttonImg;
+            if (isPlaying){
+                return <PauseCircleIcon/>
+            } else{
+                return <PlayCircleIcon/>
+            }
         }
         else{
-            buttonImg = require("../Images/playButton.png")
-            return buttonImg
+            return <PlayCircleIcon/>
         }
     };
 
     const render = () => {
         return (
-            <div className='wrapper'>
-                <div className='main'>
+            <div className="bg-gray-400">
                     {ArtistTracks.map(item => (
-                        <div key={item.id} className='trackTable'>
-                            <div className='trackImgContainer'>
+                        <div key={item.id} className='flex border bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
                                 <img src={item.album.images[0].url} alt='' className='trackImg'></img>
-                            </div>
                             <div className="trackInfo">
-                                <p className="trackName">{item.name}</p>
-                                <p className="trackReleaseDate">Duration: {convertMs(item.duration_ms)}</p>
+                                <p className="text-3xl">{item.name}</p>
+                                <p className="text-xl">Duration: {convertMs(item.duration_ms)}m</p>
                             </div>
-                            <div className='playButton'>
-                                <button onClick={() => {
+                                <button className="w-[15%] ml-auto" onClick={() => {
                                     if (item.preview_url === audioPlayer.current.src){
                                         toggle();
                                     } else {
@@ -114,12 +110,10 @@ function SpotifySongs() {
                                             setPlaying(true);
                                         };
                                     };
-                                }}><img src={changeButtonImg(item.preview_url)} alt="" className='playButtonImg'></img></button>
-                            </div>
-                        </div>))}
-                    </div>
-                    <div className='audioPlayer_GUI'>
-                        <button className='GUI_ITEM' onClick={() => {
+                                }}>{changeButtonImg(item.preview_url)}</button>
+                        </div>))}<div className="h-[10vh]"></div>
+                    <div className='fixed bg-gray-500 border border-black h-[10vh] bottom-0 flex justify-center gap-10 w-full'>
+                        <button className='' onClick={() => {
                             if (itemId > 0){
                                 setPlaying(false)
                                 let newItemId = itemId-1
@@ -131,10 +125,10 @@ function SpotifySongs() {
                                     setPlaying(true);
                                 };
                         }}}>Previous</button>
-                        <button className='GUI_ITEM' onClick={() => {
+                        <button className='' onClick={() => {
                                     toggle();
                                 }}>{isPlaying ? "Pause" : "Play"}</button>
-                        <button className='GUI_ITEM' onClick={() => {
+                        <button className='' onClick={() => {
                             console.log(ArtistTracks.length)
                             if (itemId < ArtistTracks.length-1){
                                 setPlaying(false)
