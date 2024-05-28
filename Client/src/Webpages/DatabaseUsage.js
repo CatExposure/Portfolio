@@ -1,4 +1,3 @@
-import "../styles/Database.css";
 import React from 'react';
 import Axios from 'axios';
 import {createColumnHelper, flexRender, getPaginationRowModel, getCoreRowModel, getFilteredRowModel, useReactTable, } from '@tanstack/react-table';
