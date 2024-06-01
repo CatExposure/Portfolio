@@ -61,7 +61,7 @@ function Carousel(){
                     <button className="absolute w-8 mr-2 right-0 inset-y-0 rounded-[50%] h-fit my-auto text-white z-10" onClick={()=>{stopSlider(); slideRight()}}><ArrowRightCircleIcon/></button>
             <div className="absolute flex flex-row gap-2 justify-center bottom-3 right-[auto]">
                 {carImages.map((_, index) => {
-                    return <button className={`${index===slide ? "bg-cyan-400" : "bg-white"} w-3 h-3 rounded-[50%]`} key={index} onClick={()=> setSlide(index)}></button>
+                    return <button className={`${index===slide ? "bg-cyan-400" : "bg-white"} w-3 h-3 rounded-[50%]`} key={index} onClick={()=> {stopSlider(); setSlide(index);}}></button>
                 })}
             </div>
         </div>

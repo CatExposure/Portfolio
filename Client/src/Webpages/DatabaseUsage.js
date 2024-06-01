@@ -6,6 +6,7 @@ import {ArrowsUpDownIcon} from '@heroicons/react/24/outline';
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 //ISSUE WITH BEING ON 2ND OR HIGHER PAGE AND FILTERING
 //DO NOT USE FLOWBITE, IT HAS AN ISSUE WITH HOW EARLY JAVASCRIPT RUNS DOMCONTENTLOADED AND WILL NOT WORK AFTER FIRST RENDER
+//obtain data based on users entries per page
 
 function Databases(){
 
@@ -315,7 +316,7 @@ function Databases(){
         );
     }
     return(
-        <div id="body" className="min-h-screen h-[100%] bg-gray-400 text-lg pt-10">
+        <div id="body" className="min-h-screen bg-gray-400 text-lg pt-10">
             <ConfirmationBox/>
             <div className="table-section relative justify-between gap-10 flex flex-auto flex-row">
                     <input type="text" placeholder="Type here to filter" className="border border-black border-2 bg-gray-300  rounded-md text-black placeholder:text-black" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
@@ -413,8 +414,8 @@ function Databases(){
                         {table.getState().pagination.pageIndex + 1}<label> of </label>
                         {table.getPageCount()}
                     </div>
-                <div className='z-5 table-container mt-10 pb-10'>
-                <table className="bg-white shadow-[0_0_20px_10px_rgba(255,255,255,.5),0_0_40px_20px_rgba(0,255,255,.3)]">
+                <div className='z-5 flex justify-center table-container mt-10 pb-10'>
+                <table className="border border-black bg-white shadow-[0_0_20px_10px_rgba(255,255,255,.5),0_0_40px_20px_rgba(0,255,255,.3)]">
                 <tbody>
                     {table.getHeaderGroups().map(headerGroup => <tr className = "tr" key={headerGroup.id}>
                         {headerGroup.headers.map(
