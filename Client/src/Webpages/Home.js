@@ -3,7 +3,7 @@ import Carousel from '../Components/Carousel'
 function Home(){
     return(
         <div className="bg-gray-400 min-h-screen max-h-full">
-            <div className="flex text-2xl justify-center py-5">
+            <div className="flex pt-10 text-2xl justify-center py-5">
                 <p>Welcome to ProtoSite! Where I just do a bunch of random stuff to get better knowledge of web developing! (In React, Node and Tailwind) </p>
             </div>
             <Carousel/>

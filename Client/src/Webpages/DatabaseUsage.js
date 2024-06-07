@@ -1,5 +1,6 @@
 import React from 'react';
 import Axios from 'axios';
+import {apiUrl} from '../Components/Api'
 import {createColumnHelper, flexRender, getPaginationRowModel, getCoreRowModel, getFilteredRowModel, useReactTable, } from '@tanstack/react-table';
 import {Menu, Dialog} from '@headlessui/react'
 import {ArrowsUpDownIcon} from '@heroicons/react/24/outline';
@@ -19,8 +20,9 @@ function Databases(){
 
     function getData(){
         try {
-            Axios.get("/test").then((response) => {
+            Axios.get(apiUrl+"test").then((response) => {
                 ObjectConversion(response.data.rows);
+                console.log(response)
             })
         } catch (err){
             console.log(err);
@@ -31,7 +33,7 @@ function Databases(){
         try {
             Axios({
                 method: 'put',
-                url: '/userUpdate/'+selPerson.current.id,
+                url: apiUrl+'userUpdate/'+selPerson.current.id,
                 data: {
                     firstName: selPerson.current.first_name,
                     lastName: selPerson.current.last_name,
@@ -41,8 +43,7 @@ function Databases(){
                     access: selPerson.current.access,
                     password: selPerson.current.password
                 },
-            });
-            getData();
+            }).then(() => {getData();});
         } catch(err){
             console.log(err)
         }
@@ -52,7 +53,7 @@ function Databases(){
         try {
             Axios({
                 method: 'post',
-                url: '/userCreate/',
+                url: apiUrl+'userCreate/',
                 data: {
                     firstName: selPerson.current.first_name,
                     lastName: selPerson.current.last_name,
@@ -62,8 +63,7 @@ function Databases(){
                     access: selPerson.current.access,
                     password: selPerson.current.password
                 },
-            });
-            getData();
+            }).then(() => {getData();});
         } catch(err){
             console.log(err)
         }
@@ -73,10 +73,8 @@ function Databases(){
         try {
             Axios({
                 method: 'delete',
-                url: '/userDelete/'+selPerson.current.id,
-            });
-            clearForm()
-            getData();
+                url: apiUrl+'userDelete/'+selPerson.current.id,
+            }).then(() => {clearForm(); getData();});
         } catch(err){
             console.log(err)
         }
@@ -111,7 +109,7 @@ function Databases(){
         password: false
     });
 
-    var [selApi, setSelApi] = React.useState()
+    var [selApi, setSelApi] = React.useState("entry")
 
     var columnVis = React.useRef({
         first_name: true,
@@ -315,8 +313,10 @@ function Databases(){
             <input type="button" onClick={() => {dropDownLabels.current.apiLabel = prop.value; setSelApi(prop.value)}} className="mx-1 hover:bg-gray-400 active:bg-gray-200 bg-gray-300 border border-solid border-black border-1 rounded-md" value={prop.value}/>
         );
     }
+    
     return(
         <div id="body" className="min-h-screen bg-gray-400 text-lg pt-10">
+            <div>Sorry! This webpage is under construction! (because Oracle Sucks)</div>
             <ConfirmationBox/>
             <div className="table-section relative justify-between gap-10 flex flex-auto flex-row">
                     <input type="text" placeholder="Type here to filter" className="border border-black border-2 bg-gray-300  rounded-md text-black placeholder:text-black" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
@@ -494,7 +494,7 @@ function Databases(){
                     </Menu>
                     </form>
                 </div>
-            </div>
+        </div>*
         </div>
     )
 }

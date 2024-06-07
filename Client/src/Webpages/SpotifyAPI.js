@@ -1,15 +1,15 @@
 import React from 'react';
 import {useEffect, useState} from "react";
 import axios from 'axios';
+import {redirectUri} from "../Components/Api"
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 /*
 TO DO:
     change artist to songs if possible, mainly with the ability to play music, as well as show song name
 */
 function SpotifyAPI(){
-    console.log("bruh")
     const CLIENT_ID = "b0fddc430d1245ec9a363bee851354d8"; //identifier of the created app
-    const REDIRECT_URI = "http://localhost:3000/SpotifyAPI"; //where the user will get redirected once they login through spotify
+    const REDIRECT_URI = "http://protosite.online/SpotifyAPI"; //where the user will get redirected once they login through spotify
     const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize"; //where the user will get directed once they click the login button on our page
     const RESPONSE_TYPE = "token"; //the token of their credentials and permissions
 
@@ -34,7 +34,7 @@ function SpotifyAPI(){
             setResults("false");
             return;
         }
-        window.sessionStorage.setItem("userSearch", searchKey);
+        window.localStorage.setItem("userSearch", searchKey);
         getArtists();
     }, [searchKey]);
 
@@ -42,7 +42,7 @@ function SpotifyAPI(){
         //obtains the hash from our current webpage as well as token from our local storage (if we have one)
         const hash = window.location.hash;
         let token = window.localStorage.getItem("token");
-        let userSearch = window.sessionStorage.getItem("userSearch")
+        let userSearch = window.localStorage.getItem("userSearch")
 
         if (token && userSearch) {
             setSearchKey(userSearch);
@@ -153,8 +153,8 @@ function SpotifyAPI(){
         } else {
             return artists.map(item => (
                     <div className="flex border h-[20vh] border-black border-solid w-[50%] my-5 transition-all bg-gray-600 hover:bg-gray-500 hover:h-[23vh] hover:ml-10" key={item.id} onClick={() => {
-                        window.sessionStorage.setItem("artistId", item.id)
-                        window.location.assign("http://localhost:3000/SpotifySongs");
+                        window.localStorage.setItem("artistId", item.id)
+                        window.location.assign("http://protosite.online/SpotifySongs");
                     }}>
                         {item.images.length ? <img className="h-full" src={item.images[0].url} alt=""/> : <div>No Image</div>}
                         <div className="ml-5">

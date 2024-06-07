@@ -12,10 +12,10 @@ import {Route, Routes} from 'react-router-dom';
 function App() {
   return (
     <div className="App">
-      <BannerSection bannerClassName="flex flex-row w-full max-h-[20vh] bg-gradient-to-b to-gray-400 from-black py-2" imgClassName="h-28"/>
+      <BannerSection bannerClassName="flex w-full max-h-[20vh] bg-gradient-to-b to-gray-400 from-black py-2" imgClassName="h-28"/>
       <NavBar />
       <Routes>
-        <Route path="" Component={Home}/>
+        <Route path="/" Component={Home}/>
         <Route exact path="*" Component={PageNotFound}/>
         <Route path="/Contact" Component={Contact}/>
         <Route path="/YouTubeAPI" Component={YouTubeAPI}/>

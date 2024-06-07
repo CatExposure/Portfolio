@@ -1,5 +1,6 @@
 const oracledb = require('oracledb');
 const express = require('express');
+const cors = require('cors');
 const app = express();
 require("dotenv").config();
 let connect;
@@ -7,6 +8,12 @@ const mysql = require('mysql2');
 
 app.set('port', 5000);
 app.use(express.json());
+app.use(cors());
+
+const corsOptions = {
+    origin: ["http://protosite.online", "http://localhost:3000"],
+    optionsSucessStatus: 200,
+};
 
 async function dbConnect(){
     try {
@@ -15,6 +22,7 @@ async function dbConnect(){
             password: process.env.PASSWORD,
             connectString: process.env.CONNECTSTRING
         });
+        console.log(connect)
     } catch (err) {
         console.log(err)
     } finally {
@@ -26,8 +34,9 @@ async function dbConnect(){
         }
     }
 }
+dbConnect();
 
-app.get('/test', function(req, res) {
+app.get('/test', cors(corsOptions), function(req, res) {
     var sql = "SELECT * from USERS"
     connect.execute(sql, function(err, data) {
         if (err){
@@ -38,8 +47,6 @@ app.get('/test', function(req, res) {
         res.send(data);
     })
 });
-
-dbConnect();
 
 app.put('/userUpdate/:id', function(req, res) {
     var id = req.params.id;
@@ -86,5 +93,5 @@ app.delete('/userDelete/:id', function(req, res) {
 });
 
 app.listen(app.get('port'), function() {
-    console.log('CORS-enabled web server started: http://localhost:' +app.get('port'));
+    console.log('server started: http://localhost:' +app.get('port'));
 });

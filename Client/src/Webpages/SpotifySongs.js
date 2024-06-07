@@ -14,7 +14,7 @@ import {PlayCircleIcon, PauseCircleIcon} from '@heroicons/react/24/outline';
 //we have another useEffect that runs every time the url Source is changed. Needed due to the fact that we need to load the audioplayer afterwards (allows us to continue where we previously paused)
 //we also do not want to load every render, as that would cause the 'currentTime' property to reset
 function SpotifySongs() {
-    let artistId = window.sessionStorage.getItem("artistId");
+    let artistId = window.localStorage.getItem("artistId");
     let token = window.localStorage.getItem("token");
     const audioPlayer = useRef(new Audio());
 
@@ -93,7 +93,7 @@ function SpotifySongs() {
                     {ArtistTracks.map(item => (
                         <div key={item.id} className='flex border bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
                                 <img src={item.album.images[0].url} alt='' className='trackImg'></img>
-                            <div className="trackInfo">
+                            <div>
                                 <p className="text-3xl">{item.name}</p>
                                 <p className="text-xl">Duration: {convertMs(item.duration_ms)}m</p>
                             </div>
