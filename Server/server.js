@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const oracledb = require('oracledb');
 const express = require('express');
 const cors = require('cors');
@@ -5,15 +6,72 @@ const app = express();
 require("dotenv").config();
 let connect;
 const mysql = require('mysql2');
+const clientId = "b0fddc430d1245ec9a363bee851354d8";
+const authorizationEndpoint = "https://accounts.spotify.com/authorize";
+const tokenEndpoint = "https://accounts.spotify.com/api/token";
+const scope = 'user-read-private user-read-email';
+//CHANGE THIS DEPENDING ON IN PRODUCTION OR NOT
+const inProduction = Boolean(false);
+const redirectUri = inProduction ? "https://protosite.online" : "https://localhost:3000";
 
 app.set('port', 5000);
 app.use(express.json());
 app.use(cors());
 
 const corsOptions = {
-    origin: ["http://protosite.online", "http://localhost:3000"],
+    origin: ["https://protosite.online", "https://localhost:3000"],
     optionsSucessStatus: 200,
 };
+
+console.log(redirectUri);
+//encodes a random string produced by the codeVerifier
+function base64URLEncode(str) {
+    return str.toString('base64')
+    //read regex to understand what this is doing
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
+//creates a code challenge derived from the randomly created codeVerifier utilizing SHA256 hashing algorithm
+function sha256(buffer) {
+    return crypto.createHash('sha256').update(buffer).digest();
+}
+
+app.get('/authorization', cors(corsOptions), function(_req, res) {
+    //creating 3 randomized codes
+    var codeVerifier = base64URLEncode(crypto.randomBytes(32));
+    var randomStr = base64URLEncode(crypto.randomBytes(32));
+    var privateKey = base64URLEncode(crypto.randomBytes(32));
+
+    //creating a code challenge based off of the codeVerifier variable
+    var codeChallenge = base64URLEncode(sha256(codeVerifier));
+
+    //creating a signature from the random string + privateKey
+    const signature = randomStr + privateKey; 
+    const scope = "user-modify-playback-state";
+    const state = randomStr +"."+signature;
+    var authUrl = new URL("https://accounts.spotify.com/authorize");
+
+    const params = {
+        response_type: 'code',
+        client_id: clientId,
+        scope,
+        state,
+        code_challenge_method: 'S256',
+        code_challenge: codeChallenge,
+        redirect_uri: redirectUri+"/SpotifyAPI",
+    }
+
+    authUrl.search = new URLSearchParams(params).toString();
+    authUrl = authUrl.toString();
+
+    res.send({
+        authUrl,
+        codeVerifier,
+        privateKey,
+    })
+})
 
 async function dbConnect(){
     try {
