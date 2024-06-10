@@ -7,24 +7,23 @@ require("dotenv").config();
 let connect;
 const mysql = require('mysql2');
 const clientId = "b0fddc430d1245ec9a363bee851354d8";
-const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
-const scope = 'user-read-private user-read-email';
 //CHANGE THIS DEPENDING ON IN PRODUCTION OR NOT
 const inProduction = Boolean(false);
-const redirectUri = inProduction ? "https://protosite.online" : "https://localhost:3000";
+const redirectUri = inProduction ? "https://protosite.online" : "http://localhost:3000";
 
 app.set('port', 5000);
 app.use(express.json());
 app.use(cors());
 
 const corsOptions = {
-    origin: ["https://protosite.online", "https://localhost:3000"],
+    origin: ["https://protosite.online", "https://localhost:3000", ],
     optionsSucessStatus: 200,
 };
 
 console.log(redirectUri);
 //encodes a random string produced by the codeVerifier
+
 function base64URLEncode(str) {
     return str.toString('base64')
     //read regex to understand what this is doing
@@ -38,17 +37,18 @@ function sha256(buffer) {
     return crypto.createHash('sha256').update(buffer).digest();
 }
 
+const privateKey = crypto.randomBytes(32);
+
 app.get('/authorization', cors(corsOptions), function(_req, res) {
     //creating 3 randomized codes
     var codeVerifier = base64URLEncode(crypto.randomBytes(32));
     var randomStr = base64URLEncode(crypto.randomBytes(32));
-    var privateKey = base64URLEncode(crypto.randomBytes(32));
 
     //creating a code challenge based off of the codeVerifier variable
     var codeChallenge = base64URLEncode(sha256(codeVerifier));
 
     //creating a signature from the random string + privateKey
-    const signature = randomStr + privateKey; 
+    const signature = base64URLEncode(sha256(randomStr + privateKey)); 
     const scope = "user-modify-playback-state";
     const state = randomStr +"."+signature;
     var authUrl = new URL("https://accounts.spotify.com/authorize");
@@ -69,9 +69,46 @@ app.get('/authorization', cors(corsOptions), function(_req, res) {
     res.send({
         authUrl,
         codeVerifier,
-        privateKey,
+        state,
     })
-})
+});
+
+app.post("/tokenPreCheck", cors(corsOptions), function(req, res){
+    const state = req.body.state;
+
+    //we split the state to create (randomStr SPLIT randomStr+privateKey)
+    //then we add the privateKey to the randomStr and compare it to the randomStr+privateKey to ensure they are the same
+    var verifyValue = base64URLEncode(sha256((state.split(".")[0] + privateKey)));
+    if (verifyValue = state.split(".")[1]){
+        res.send(true)
+    } else {
+        res.send(false);
+    }
+});
+
+app.post("/token", cors(corsOptions), async function(req, res){
+    const code = req.body.code;
+    const codeVerifier = req.body.codeVerifier;
+
+    const payload = {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+            client_id: clientId,
+            grant_type: 'authorization_code',
+            code,
+            redirect_uri: redirectUri+"/SpotifyAPI",
+            code_verifier: codeVerifier,
+        }),
+        }
+
+        const body = await fetch(tokenEndpoint, payload);
+        const response = await body.json();
+        console.log(response);
+        res.send(response);
+});
 
 async function dbConnect(){
     try {
