@@ -14,8 +14,8 @@ import {PlayCircleIcon, PauseCircleIcon} from '@heroicons/react/24/outline';
 //we have another useEffect that runs every time the url Source is changed. Needed due to the fact that we need to load the audioplayer afterwards (allows us to continue where we previously paused)
 //we also do not want to load every render, as that would cause the 'currentTime' property to reset
 function SpotifySongs() {
-    let artistId = window.localStorage.getItem("artistId");
-    let token = window.localStorage.getItem("token");
+    const artistId = window.localStorage.getItem("artistId");
+    const token = window.localStorage.getItem("access_token");
     const audioPlayer = useRef(new Audio());
 
     const [ArtistTracks, setArtistTracks] = useState([]);
@@ -47,6 +47,7 @@ function SpotifySongs() {
 
     //had to change the get request as the Spotify API params dont support 'top-tracks'. Also, country is for some reason a required param
     const getArtistAlbum = async() => {
+        console.log(token)
         try{
             let artistName = "https://api.spotify.com/v1/artists/"+artistId+"/top-tracks"
             const {data} = await axios.get(artistName, {

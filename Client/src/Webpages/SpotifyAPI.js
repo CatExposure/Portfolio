@@ -137,7 +137,7 @@ function SpotifyAPI(){
             return artists.map(item => (
                     <div className="flex border h-[20vh] border-black border-solid w-[50%] mt-5 transition-all bg-gray-600 hover:bg-gray-500 hover:h-[23vh] hover:ml-10" key={item.id} onClick={() => {
                         window.localStorage.setItem("artistId", item.id)
-                        window.location.assign("http://protosite.online/SpotifySongs");
+                        window.location.assign(redirectUri+"SpotifySongs");
                     }}>
                         {item.images.length ? <img className="h-full" src={item.images[0].url} alt=""/> : <div>No Image</div>}
                         <div className="ml-5">
