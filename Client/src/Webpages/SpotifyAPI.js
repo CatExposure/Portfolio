@@ -6,62 +6,50 @@ import {apiUrl} from "../Components/Api"
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 
 function SpotifyAPI(){
-    const urlParams = new URLSearchParams(window.location.search);
     const token = window.localStorage.getItem("access_token");
     const [searchKey, setSearchKey] = useState("");
     const [artists, setArtists] = useState([]);
     const [Results, setResults] = useState("")
+    const urlParams = new URLSearchParams(window.location.search);
 
-    if (urlParams.get('code')){
-        window.sessionStorage.setItem("code", urlParams.get('code'))
-        console.log(window.sessionStorage.getItem("code_verifier"));
-        getToken();
+    if (urlParams.get("authorized")){
+        window.sessionStorage.setItem("authorized", urlParams.get("authorized"))
     }
 
+    if (!token && window.sessionStorage.getItem("authorized") === 'true') {
+        console.log("yippie")
+        Axios({
+            method: 'get',
+            url: apiUrl+"obtainTokens",
+            withCredentials: true}).then((response) => {
+            console.log(response);
+            window.localStorage.setItem("access_token", response.data.access_token);
+            window.localStorage.setItem("refresh_token", response.data.refresh_token);
+        })
+    }
     function getAuth(){
         try {
-            Axios.get(apiUrl+"authorization").then((response) => {
-                window.sessionStorage.setItem("code_verifier", response.data.codeVerifier);
-                window.sessionStorage.setItem("state", response.data.state);
-                window.location.href = (response.data.authUrl);
-            });
+            Axios({
+                method: 'post',
+                url: apiUrl+'authorization',
+                withCredentials: true
+            }).then ((response) => {
+                window.location.href = response.data.authUrl;
+            })
         } catch(err) {
             console.log(err)
         }
     }
 
-    async function preCheck(){
-        let result
-        await Axios({
+    function refreshToken() {
+        Axios({
             method: 'post',
-            url: apiUrl+"tokenPreCheck",
-            data: {
-                state: window.sessionStorage.getItem("state")
-            },
-        }).then((response) => {
-            result = response.data;
-        })
-        return result
-    }
-
-    async function getToken(){
-        console.log("test")
-        if (await preCheck() === true){
-            Axios({
-                method: 'post',
-                url: apiUrl+"token",
-                data: {
-                    code: window.sessionStorage.getItem("code"),
-                    codeVerifier: window.sessionStorage.getItem("code_verifier")
-                }
-            }).then((response) => {
-                console.log(response);
-                window.localStorage.setItem('access_token', response.data.access_token);
-                window.localStorage.setItem('refresh_token', response.data.refresh_token);
-                window.localStorage.setItem('expr', response.data.expires_in)
-                window.location.href = redirectUri+"SpotifyAPI";
-            });
-        }
+            url: apiUrl+'/refreshToken',
+            withCredentials: true
+        }).then((response => {
+            window.localStorage.setItem("access_token", response.access_token);
+            window.localStorage.setItem("refresh_token", response.refresh_token);
+        }))
     }
     //if the user entered nothing or uses the * character (explained more later) then set the results state to false/none and prevents the search from running
         //as for the * character, in the actual spotify app you can search with the * character, however the API seems to despise it.
@@ -108,7 +96,19 @@ function SpotifyAPI(){
         setArtists(data.artists.items);
 
     }catch(error){
-        console.log(error);
+        if (error.response.status === 401 && window.localStorage.getItem("refresh_token")) {
+            Axios({
+                method: 'post',
+                url: apiUrl+'refreshToken',
+                data: {
+                    refreshToken: window.localStorage.getItem("refresh_token"),
+                }
+            }).then((response) => {
+                window.localStorage.setItem('access_token', response.data.access_token);
+                window.localStorage.setItem('refresh_token', response.data.refresh_token);
+                window.location.href = redirectUri+"SpotifyAPI";
+            })
+        }
     } 
     }
 }
@@ -131,7 +131,7 @@ function SpotifyAPI(){
     const renderArtists = () => {
         if (Results === "false" || Results.trim() === "") {
             return (
-                <></>
+                <div></div>
             )
         } else {
             return artists.map(item => (
@@ -203,7 +203,7 @@ function SpotifyAPI(){
             </div>
             {renderResultsMessage()}
             <div className="ml-5">
-                {renderArtists()}
+            {renderArtists()}
             </div>
             <div className='pt-10'></div>
         </div>
