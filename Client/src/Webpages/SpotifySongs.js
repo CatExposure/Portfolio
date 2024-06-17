@@ -14,8 +14,8 @@ import {PlayCircleIcon, PauseCircleIcon} from '@heroicons/react/24/outline';
 //we have another useEffect that runs every time the url Source is changed. Needed due to the fact that we need to load the audioplayer afterwards (allows us to continue where we previously paused)
 //we also do not want to load every render, as that would cause the 'currentTime' property to reset
 function SpotifySongs() {
-    let artistId = window.sessionStorage.getItem("artistId");
-    let token = window.localStorage.getItem("token");
+    const artistId = window.localStorage.getItem("artistId");
+    const token = window.localStorage.getItem("access_token");
     const audioPlayer = useRef(new Audio());
 
     const [ArtistTracks, setArtistTracks] = useState([]);
@@ -47,6 +47,7 @@ function SpotifySongs() {
 
     //had to change the get request as the Spotify API params dont support 'top-tracks'. Also, country is for some reason a required param
     const getArtistAlbum = async() => {
+        console.log(token)
         try{
             let artistName = "https://api.spotify.com/v1/artists/"+artistId+"/top-tracks"
             const {data} = await axios.get(artistName, {
@@ -87,68 +88,62 @@ function SpotifySongs() {
         }
     };
 
-    const render = () => {
-        return (
-            <div className="bg-gray-400">
-                    {ArtistTracks.map(item => (
-                        <div key={item.id} className='flex border bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
-                                <img src={item.album.images[0].url} alt='' className='trackImg'></img>
-                            <div className="trackInfo">
-                                <p className="text-3xl">{item.name}</p>
-                                <p className="text-xl">Duration: {convertMs(item.duration_ms)}m</p>
-                            </div>
-                                <button className="w-[15%] ml-auto" onClick={() => {
-                                    if (item.preview_url === audioPlayer.current.src){
-                                        toggle();
-                                    } else {
-                                        console.log(ArtistTracks.indexOf(item))
-                                        setPlaying(false);
-                                        setSrc(item.preview_url);
-                                        setItemId(ArtistTracks.indexOf(item));
-                                        audioPlayer.current.oncanplay = function() {
-                                            //for some reason, toggle does NOT work here, even though it should do the exact same thing
-                                            setPlaying(true);
-                                        };
-                                    };
-                                }}>{changeButtonImg(item.preview_url)}</button>
-                        </div>))}<div className="h-[10vh]"></div>
-                    <div className='fixed bg-gray-500 border border-black h-[10vh] bottom-0 flex justify-center gap-10 w-full'>
-                        <button className='' onClick={() => {
-                            if (itemId > 0){
-                                setPlaying(false)
-                                let newItemId = itemId-1
-                                let newSrc = ArtistTracks[newItemId].preview_url;
-                                setSrc(newSrc);
-                                setItemId(newItemId);
-                                audioPlayer.current.oncanplay = function() {
-                                    //for some reason, toggle does NOT work here, even though it should do the exact same thing
-                                    setPlaying(true);
-                                };
-                        }}}>Previous</button>
-                        <button className='' onClick={() => {
-                                    toggle();
-                                }}>{isPlaying ? "Pause" : "Play"}</button>
-                        <button className='' onClick={() => {
-                            console.log(ArtistTracks.length)
-                            if (itemId < ArtistTracks.length-1){
-                                setPlaying(false)
-                                let newItemId = itemId+1
-                                let newSrc = ArtistTracks[newItemId].preview_url;
-                                setSrc(newSrc);
-                                setItemId(newItemId);
-                                audioPlayer.current.oncanplay = function() {
-                                    //for some reason, toggle does NOT work here, even though it should do the exact same thing
-                                    setPlaying(true);
-                                };
-                        }}}>Next</button>
-                    </div>
-            </div>
-            )
-    }
-
     return (
-        render()
-    )
+        <div className="bg-gray-400">
+                {ArtistTracks.map(item => (
+                    <div key={item.id} className='flex border bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
+                            <img src={item.album.images[0].url} alt='' className='trackImg'></img>
+                        <div>
+                            <p className="text-3xl">{item.name}</p>
+                            <p className="text-xl">Duration: {convertMs(item.duration_ms)}m</p>
+                        </div>
+                            <button className="w-[15%] ml-auto" onClick={() => {
+                                if (item.preview_url === audioPlayer.current.src){
+                                    toggle();
+                                } else {
+                                    console.log(ArtistTracks.indexOf(item))
+                                    setPlaying(false);
+                                    setSrc(item.preview_url);
+                                    setItemId(ArtistTracks.indexOf(item));
+                                    audioPlayer.current.oncanplay = function() {
+                                        //for some reason, toggle does NOT work here, even though it should do the exact same thing
+                                        setPlaying(true);
+                                    };
+                                };
+                            }}>{changeButtonImg(item.preview_url)}</button>
+                    </div>))}<div className="h-[10vh]"></div>
+                <div className='fixed bg-gray-500 border border-black h-[10vh] bottom-0 flex justify-center gap-10 w-full'>
+                    <button className='' onClick={() => {
+                        if (itemId > 0){
+                            setPlaying(false)
+                            let newItemId = itemId-1
+                            let newSrc = ArtistTracks[newItemId].preview_url;
+                            setSrc(newSrc);
+                            setItemId(newItemId);
+                            audioPlayer.current.oncanplay = function() {
+                                //for some reason, toggle does NOT work here, even though it should do the exact same thing
+                                setPlaying(true);
+                            };
+                    }}}>Previous</button>
+                    <button className='' onClick={() => {
+                                toggle();
+                            }}>{isPlaying ? "Pause" : "Play"}</button>
+                    <button className='' onClick={() => {
+                        console.log(ArtistTracks.length)
+                        if (itemId < ArtistTracks.length-1){
+                            setPlaying(false)
+                            let newItemId = itemId+1
+                            let newSrc = ArtistTracks[newItemId].preview_url;
+                            setSrc(newSrc);
+                            setItemId(newItemId);
+                            audioPlayer.current.oncanplay = function() {
+                                //for some reason, toggle does NOT work here, even though it should do the exact same thing
+                                setPlaying(true);
+                            };
+                    }}}>Next</button>
+                </div>
+        </div>
+        )
 }
 
 export default SpotifySongs
