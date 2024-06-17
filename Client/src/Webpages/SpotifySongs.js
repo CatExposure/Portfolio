@@ -88,6 +88,7 @@ function SpotifySongs() {
         }
     };
 
+<<<<<<< HEAD
     return (
         <div className="bg-gray-400">
                 {ArtistTracks.map(item => (
@@ -144,6 +145,70 @@ function SpotifySongs() {
                 </div>
         </div>
         )
+=======
+    const render = () => {
+        return (
+            <div className="bg-gray-400">
+                    {ArtistTracks.map(item => (
+                        <div key={item.id} className='flex border bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
+                                <img src={item.album.images[0].url} alt='' className='trackImg'></img>
+                            <div>
+                                <p className="text-3xl">{item.name}</p>
+                                <p className="text-xl">Duration: {convertMs(item.duration_ms)}m</p>
+                            </div>
+                                <button className="w-[15%] ml-auto" onClick={() => {
+                                    if (item.preview_url === audioPlayer.current.src){
+                                        toggle();
+                                    } else {
+                                        console.log(ArtistTracks.indexOf(item))
+                                        setPlaying(false);
+                                        setSrc(item.preview_url);
+                                        setItemId(ArtistTracks.indexOf(item));
+                                        audioPlayer.current.oncanplay = function() {
+                                            //for some reason, toggle does NOT work here, even though it should do the exact same thing
+                                            setPlaying(true);
+                                        };
+                                    };
+                                }}>{changeButtonImg(item.preview_url)}</button>
+                        </div>))}<div className="h-[10vh]"></div>
+                    <div className='fixed bg-gray-500 border border-black h-[10vh] bottom-0 flex justify-center gap-10 w-full'>
+                        <button className='' onClick={() => {
+                            if (itemId > 0){
+                                setPlaying(false)
+                                let newItemId = itemId-1
+                                let newSrc = ArtistTracks[newItemId].preview_url;
+                                setSrc(newSrc);
+                                setItemId(newItemId);
+                                audioPlayer.current.oncanplay = function() {
+                                    //for some reason, toggle does NOT work here, even though it should do the exact same thing
+                                    setPlaying(true);
+                                };
+                        }}}>Previous</button>
+                        <button className='' onClick={() => {
+                                    toggle();
+                                }}>{isPlaying ? "Pause" : "Play"}</button>
+                        <button className='' onClick={() => {
+                            console.log(ArtistTracks.length)
+                            if (itemId < ArtistTracks.length-1){
+                                setPlaying(false)
+                                let newItemId = itemId+1
+                                let newSrc = ArtistTracks[newItemId].preview_url;
+                                setSrc(newSrc);
+                                setItemId(newItemId);
+                                audioPlayer.current.oncanplay = function() {
+                                    //for some reason, toggle does NOT work here, even though it should do the exact same thing
+                                    setPlaying(true);
+                                };
+                        }}}>Next</button>
+                    </div>
+            </div>
+            )
+    }
+
+    return (
+        render()
+    )
+>>>>>>> 1be5924dbc66e707d553cdd56eb07111627ce269
 }
 
 export default SpotifySongs

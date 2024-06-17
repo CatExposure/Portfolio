@@ -1,9 +1,14 @@
 import React from 'react';
 import {useEffect, useState} from "react";
 import Axios from 'axios';
+<<<<<<< HEAD
 import {redirectUri} from "../Components/Api";
 import {apiUrl} from "../Components/Api";
 import PlaylistPopup from  "../Components/PlaylistPopup";
+=======
+import {redirectUri} from "../Components/Api"
+import {apiUrl} from "../Components/Api"
+>>>>>>> 1be5924dbc66e707d553cdd56eb07111627ce269
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 
 function SpotifyAPI(){
@@ -11,7 +16,10 @@ function SpotifyAPI(){
     const [searchKey, setSearchKey] = useState("");
     const [artists, setArtists] = useState([]);
     const [Results, setResults] = useState("")
+<<<<<<< HEAD
     const [artistId, setArtistId] = useState();
+=======
+>>>>>>> 1be5924dbc66e707d553cdd56eb07111627ce269
     const urlParams = new URLSearchParams(window.location.search);
 
     if (urlParams.get("authorized")){
@@ -138,7 +146,12 @@ function SpotifyAPI(){
         } else {
             return artists.map(item => (
                     <div className="flex border h-[20vh] border-black border-solid w-[50%] mt-5 transition-all bg-gray-600 hover:bg-gray-500 hover:h-[23vh] hover:ml-10" key={item.id} onClick={() => {
+<<<<<<< HEAD
                         setArtistId(item.id)
+=======
+                        window.localStorage.setItem("artistId", item.id)
+                        window.location.assign(redirectUri+"SpotifySongs");
+>>>>>>> 1be5924dbc66e707d553cdd56eb07111627ce269
                     }}>
                         {item.images.length ? <img className="h-full" src={item.images[0].url} alt=""/> : <div>No Image</div>}
                         <div className="ml-5">
@@ -206,7 +219,10 @@ function SpotifyAPI(){
             <div className="ml-5">
             {renderArtists()}
             </div>
+<<<<<<< HEAD
             <PlaylistPopup artistId={artistId}/>
+=======
+>>>>>>> 1be5924dbc66e707d553cdd56eb07111627ce269
             <div className='pt-10'></div>
         </div>
     )
