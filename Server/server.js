@@ -57,27 +57,17 @@ function sha256(buffer) {
 const privateKey = crypto.randomBytes(32);
 var codeVerifier = base64URLEncode(crypto.randomBytes(32));
 
-<<<<<<< HEAD
 app.post('/authorization', cors(corsOptions), async function(_req, res) {
     console.log("yay");
     //creating 3 randomized codes
     const clientKey = base64URLEncode(crypto.randomBytes(32));
     console.log("potentially: "+clientKey)
-=======
-app.post('/authorization', cors(corsOptions), async function(req, res) {
-    console.log("yay");
-    //creating 3 randomized codes
-    const clientKey = base64URLEncode(crypto.randomBytes(32));
->>>>>>> 1be5924dbc66e707d553cdd56eb07111627ce269
     var randomStr = base64URLEncode(crypto.randomBytes(32));
     res.setHeader('Set-Cookie', cookie.serialize("clientKey", clientKey, {
         httpOnly: true,
         sameSite: 'none',
-<<<<<<< HEAD
         maxAge: 1000 * 60 * 60 * 24,
         secure: true, //this made the cookie not dissapear on reload??
-=======
->>>>>>> 1be5924dbc66e707d553cdd56eb07111627ce269
     }));
 
     //creating a code challenge based off of the codeVerifier variable
@@ -109,12 +99,8 @@ app.post('/authorization', cors(corsOptions), async function(req, res) {
 
 app.get("/token", cors(corsOptions), async function(req, res){
     const state = req.query.state;
-<<<<<<< HEAD
     const clientKey = cookie.parse(req.headers.cookie).clientKey;
     console.log(clientKey);
-=======
-    const id = cookie.parse(req.headers.cookie).clientKey;
->>>>>>> 1be5924dbc66e707d553cdd56eb07111627ce269
 
     //we split the state to create (randomStr SPLIT randomStr+privateKey)
     //then we add the privateKey to the randomStr and compare it to the randomStr+privateKey to ensure they are the same
@@ -139,20 +125,12 @@ app.get("/token", cors(corsOptions), async function(req, res){
 
             const body = await fetch(tokenEndpoint, payload);
             const response = await body.json();
-<<<<<<< HEAD
             redisClient.hSet(clientKey, "access_token", response.access_token);
             redisClient.hSet(clientKey, "refresh_token", response.refresh_token);
             res.setHeader('Set-Cookie', cookie.serialize("balls", clientKey, {
                 httpOnly: true,
                 sameSite: 'none',
             }));
-=======
-            redisClient.hSet(id, "access_token", response.access_token);
-            redisClient.hSet(id, "refresh_token", response.refresh_token);
-            //redisClient.set(req.cookies.clientKey)
-            //req.session.access_token = response.access_token;
-            //req.session.refresh_token = response.refresh_token;
->>>>>>> 1be5924dbc66e707d553cdd56eb07111627ce269
             res.redirect("http://localhost:3000/SpotifyAPI?" + querystring.stringify({
                 "authorized": true
             }));
@@ -213,11 +191,7 @@ async function dbConnect(){
     }
 }
 
-<<<<<<< HEAD
-//dbConnect();
-=======
 dbConnect();
->>>>>>> 1be5924dbc66e707d553cdd56eb07111627ce269
 
 app.get('/test', cors(corsOptions), function(req, res) {
     var sql = "SELECT * from USERS"

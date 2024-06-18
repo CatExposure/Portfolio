@@ -4,7 +4,6 @@ import YouTubeAPI from './Webpages/YouTubeAPI';
 import SpotifyAPI from './Webpages/SpotifyAPI';
 import Contact from './Webpages/Contact';
 import PageNotFound from './Webpages/404Page'
-import SpotifySongs from "./Webpages/SpotifySongs"
 import NavBar from './Components/NavBar';
 import BannerSection from './Components/Banner';
 import {Route, Routes} from 'react-router-dom';
@@ -22,7 +21,6 @@ function App() {
         <Route path="/SpotifyAPI" Component={SpotifyAPI}/>
         <Route path="/Databases" Component={Databases}/>
         <Route path="/404" Component={PageNotFound}/>
-        <Route path="/SpotifySongs" Component={SpotifySongs}/>
       </Routes>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import {PlayCircleIcon, PauseCircleIcon, ArrowDownIcon} from '@heroicons/react/24/outline';
+import {PlayCircleIcon, PauseCircleIcon, ArrowDownIcon, BackwardIcon, ForwardIcon} from '@heroicons/react/24/outline';
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
 
 //grabs the token and artistId so that we can find the tracks for the particular artist the user clicked on
@@ -86,8 +86,17 @@ function PlaylistPopup(props) {
         }
     };
 
+    function displayPlaying() {
+        if (ArtistTracks[itemId] != undefined) {
+            console.log(ArtistTracks[itemId]);
+            return <div className='relative flex'><img className='border rounded-[50%] border-transparent' src={ArtistTracks[itemId].album.images[0].url}></img><label className='ml-3 my-auto'>{ArtistTracks[itemId].name}</label></div>
+        } else {
+            return 
+        }
+    }
+
     return (
-    <div className={`${isOpen ? "h-full w-full" : "h-[10%] w-full"} transition-all duration-[400ms] bg-gray-400 fixed bottom-0`}>
+    <div className={`${isOpen ? "h-full w-full" : "h-[13vh] w-full"} transition-all duration-[400ms] bg-gray-400 fixed bottom-0`}>
         <ArrowDownIcon className={`${isOpen ? "" : "rotate-180"} z-10 transition-all relative h-10`} onClick={()=>{setIsOpen(!isOpen)}}/>
             {ArtistTracks.map(item => (
                 <div key={item.id} className='flex border bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
@@ -100,7 +109,6 @@ function PlaylistPopup(props) {
                             if (item.preview_url === audioPlayer.current.src){
                                 toggle();
                             } else {
-                                console.log(ArtistTracks.indexOf(item))
                                 setPlaying(false);
                                 setSrc(item.preview_url);
                                 setItemId(ArtistTracks.indexOf(item));
@@ -111,10 +119,10 @@ function PlaylistPopup(props) {
                             };
                         }}>{changeButtonImg(item.preview_url)}</button>
                 </div>))}<div className="h-[10vh]"></div>
-            <div className='fixed bg-gray-500 border border-black h-[10vh] bottom-0 flex justify-center gap-10 w-full'>
-                <div>
-                    <label>Now playing: {}</label>
-                </div>
+            <div className='flex fixed bg-gray-500 border border-black h-[13vh] bottom-0 justify-evenly w-full'>
+                {displayPlaying()}
+                <div className='flex flex-col justify-center items-center'>
+                <div className='flex gap-5'>
                 <button className='' onClick={() => {
                     if (itemId > 0){
                         setPlaying(false)
@@ -126,10 +134,10 @@ function PlaylistPopup(props) {
                             //for some reason, toggle does NOT work here, even though it should do the exact same thing
                             setPlaying(true);
                         };
-                }}}>Previous</button>
+                }}}><BackwardIcon className='h-10'/></button>
                 <button className='' onClick={() => {
                             toggle();
-                        }}>{isPlaying ? "Pause" : "Play"}</button>
+                        }}>{isPlaying ? <PauseCircleIcon className='h-10'/> : <PlayCircleIcon className='h-10'/>}</button>
                 <button className='' onClick={() => {
                     console.log(ArtistTracks.length)
                     if (itemId < ArtistTracks.length-1){
@@ -142,7 +150,13 @@ function PlaylistPopup(props) {
                             //for some reason, toggle does NOT work here, even though it should do the exact same thing
                             setPlaying(true);
                         };
-                }}}>Next</button>
+                }}}><ForwardIcon className='h-10'/></button>
+                </div>
+                    <p>soundbard length</p>
+                </div>
+                <div className='flex items-center'>
+                    volume control
+                </div>
             </div>
     </div>
     )
