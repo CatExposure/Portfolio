@@ -7,29 +7,17 @@ import PlaylistPopup from  "../Components/PlaylistPopup";
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 
 function SpotifyAPI(){
-    const token = window.localStorage.getItem("access_token");
     const [searchKey, setSearchKey] = useState("");
     const [artists, setArtists] = useState([]);
     const [Results, setResults] = useState("")
     const [artistId, setArtistId] = useState();
     const urlParams = new URLSearchParams(window.location.search);
+    const authorized = urlParams.get("authorized");
 
     if (urlParams.get("authorized")){
         window.sessionStorage.setItem("authorized", urlParams.get("authorized"))
     }
 
-    if (!token && window.sessionStorage.getItem("authorized") === 'true') {
-        console.log("yippie")
-        Axios({
-            method: 'get',
-            url: apiUrl+"obtainTokens",
-            withCredentials: true}).then((response) => {
-            console.log(response);
-            window.localStorage.setItem("access_token", response.data.access_token);
-            window.localStorage.setItem("refresh_token", response.data.refresh_token);
-            window.location.reload();
-        })
-    }
     function getAuth(){
         try {
             Axios({
@@ -70,7 +58,7 @@ function SpotifyAPI(){
     //sets the token state to blank and removes the localStorage token
     const logout = () => {
         window.localStorage.removeItem("access_token");
-        window.sessionStorage.setItem("authorized", urlParams.get("authorized"))
+        window.sessionStorage.removeItem("authorized");
         window.location.href = redirectUri+"SpotifyAPI";
     }
 
@@ -110,7 +98,7 @@ function SpotifyAPI(){
             }).then((response) => {
                 window.localStorage.setItem('access_token', response.data.access_token);
                 window.localStorage.setItem('refresh_token', response.data.refresh_token);
-                window.location.href = redirectUri+"SpotifyAPI";
+                //window.location.href = redirectUri+"SpotifyAPI";
             })
         }
     } 
@@ -172,7 +160,7 @@ function SpotifyAPI(){
 
     //allows the user to login to spotify (or log out if they are already logged in)
     const LoginOut = () => {
-        if (token === null) {
+        if (authorized) {
             return (
                 <div>
                     <button onClick={()=> {getAuth()}}>Login</button>

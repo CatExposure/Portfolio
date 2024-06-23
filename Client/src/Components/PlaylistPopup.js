@@ -1,7 +1,6 @@
 import React from 'react';
 import axios from 'axios';
 import {PlayCircleIcon, PauseCircleIcon, ArrowDownIcon, BackwardIcon, ForwardIcon} from '@heroicons/react/24/outline';
-<script src="https://sdk.scdn.co/spotify-player.js"></script>
 
 //grabs the token and artistId so that we can find the tracks for the particular artist the user clicked on
 //we use 'useRef' for the audioplayer, otherwise every re-render will create another instance of an audioPlayer
@@ -46,8 +45,8 @@ function PlaylistPopup(props) {
     const getArtistAlbum = async() => {
             if (artistId) {
         try{
-            let artistName = "https://api.spotify.com/v1/artists/"+artistId+"/top-tracks"
-            const {data} = await axios.get(artistName, {
+            let artistUrl = "https://api.spotify.com/v1/artists/"+artistId+"/top-tracks"
+            const {data} = await axios.get(artistUrl, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }, 
@@ -152,10 +151,8 @@ function PlaylistPopup(props) {
                         };
                 }}}><ForwardIcon className='h-10'/></button>
                 </div>
-                    <p>soundbard length</p>
                 </div>
                 <div className='flex items-center'>
-                    volume control
                 </div>
             </div>
     </div>

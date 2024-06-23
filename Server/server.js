@@ -75,7 +75,7 @@ app.post('/authorization', cors(corsOptions), async function(_req, res) {
 
     //creating a signature from the random string + privateKey
     const signature = base64URLEncode(sha256(randomStr + privateKey)); 
-    const scope = "user-modify-playback-state";
+    const scope = "streaming user-modify-playback-state";
     const state = randomStr +"."+signature;
     var authUrl = new URL("https://accounts.spotify.com/authorize");
 
@@ -96,6 +96,15 @@ app.post('/authorization', cors(corsOptions), async function(_req, res) {
         authUrl,
     });
 });
+
+function getClientKey(){
+    return cookie.parse(req.headers.cookie).clientKey;
+}
+
+function getAccessToken(){
+    const clientKey = getClientKey();
+    return redisClient.hGet(clientKey, 'access_token');
+}
 
 app.get("/token", cors(corsOptions), async function(req, res){
     const state = req.query.state;
@@ -139,17 +148,9 @@ app.get("/token", cors(corsOptions), async function(req, res){
     }
 });
 
-app.get('/obtainTokens', cors(corsOptions), async function(req, res){
-    const id = cookie.parse(req.headers.cookie).clientKey;
-    console.log(await redisClient.hGet(id, "access_token"))
-    res.send({
-        'access_token': await redisClient.hGet(id, "access_token"),
-        'refresh_token': await redisClient.hGet(id, "refresh_token"),
-    })
-});
-
 app.post('/refreshToken', cors(corsOptions), async function(req, res){
-    const refreshToken = req.body.refreshToken;
+    const clientKey = getClientKey()
+    const refreshToken = redisClient.hGet(clientKey, 'refresh_token');
 
     const payload = {
         method: 'post',
@@ -167,8 +168,8 @@ app.post('/refreshToken', cors(corsOptions), async function(req, res){
         const body = await fetch(tokenEndpoint, payload);
         const response = await body.json();
         console.log(response);
-        res.send(response);
-
+        redisClient.hSet(clientKey, "access_token", response.access_token);
+        redisClient.hSet(clientKey, "refresh_token", response.refresh_token);
 })
 
 async function dbConnect(){
@@ -191,7 +192,7 @@ async function dbConnect(){
     }
 }
 
-dbConnect();
+//dbConnect();s
 
 app.get('/test', cors(corsOptions), function(req, res) {
     var sql = "SELECT * from USERS"
