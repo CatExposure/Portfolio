@@ -16,6 +16,7 @@ const tokenEndpoint = "https://accounts.spotify.com/api/token";
 //CHANGE THIS DEPENDING ON IN PRODUCTION OR NOT
 const inProduction = Boolean(false);
 const redirectUri = inProduction ? "https://protosite.online/api/v1" : "http://localhost:5000";
+const redirectUrl = inProduction ? "https://protosite.online" : "http://localhost:3000"
 
 app.set('trust proxy', 1);
 
@@ -58,10 +59,8 @@ const privateKey = crypto.randomBytes(32);
 var codeVerifier = base64URLEncode(crypto.randomBytes(32));
 
 app.post('/authorization', cors(corsOptions), async function(_req, res) {
-    console.log("yay");
     //creating 3 randomized codes
     const clientKey = base64URLEncode(crypto.randomBytes(32));
-    console.log("potentially: "+clientKey)
     var randomStr = base64URLEncode(crypto.randomBytes(32));
     res.setHeader('Set-Cookie', cookie.serialize("clientKey", clientKey, {
         httpOnly: true,
@@ -97,14 +96,66 @@ app.post('/authorization', cors(corsOptions), async function(_req, res) {
     });
 });
 
-function getClientKey(){
+function getClientKey(req){
     return cookie.parse(req.headers.cookie).clientKey;
 }
 
-function getAccessToken(){
-    const clientKey = getClientKey();
-    return redisClient.hGet(clientKey, 'access_token');
+async function getAccessToken(clientKey){
+    try{
+        return await redisClient.hGet(clientKey, 'access_token');
+    }catch{
+        return false};
 }
+
+async function refreshToken(clientKey) {
+    const refreshToken = redisClient.hGet(clientKey, 'refresh_token');
+
+    const payload = {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': 'Basic ' + (new Buffer.from(clientId + ':' + clientSecret).toString('base64')),
+        },
+        body: new URLSearchParams({
+            client_id: clientId,
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken
+        }),
+        }
+
+        const body = await fetch(tokenEndpoint, payload);
+        const response = await body.json();
+        console.log(response);
+        redisClient.hSet(clientKey, "access_token", response.access_token, {EX: response.expires_in});
+        redisClient.hSet(clientKey, "refresh_token", response.refresh_token);
+}
+
+async function validation(req){
+    const clientKey = getClientKey(req);
+    console.log(clientKey)
+    if (!await getAccessToken(clientKey)){
+        if (!await redisClient.hExists(clientKey, "refresh_token")){
+            const error = {
+                status: 403,
+                message: "User not logged in"
+            }
+            return error
+        }
+            refreshToken(clientKey);
+            return true;
+    } else{
+        return true;
+    }
+}
+
+app.get("/getValidation", cors(corsOptions), async function(req, res){
+    res.send(await validation(req));
+});
+
+app.get("/logOut", cors(corsOptions), function(req, res){
+    const clientKey = getClientKey(req);
+    redisClient.del(clientKey);
+});
 
 app.get("/token", cors(corsOptions), async function(req, res){
     const state = req.query.state;
@@ -134,43 +185,39 @@ app.get("/token", cors(corsOptions), async function(req, res){
 
             const body = await fetch(tokenEndpoint, payload);
             const response = await body.json();
-            redisClient.hSet(clientKey, "access_token", response.access_token);
+            redisClient.hSet(clientKey, "access_token", response.access_token, {EX: response.expires_in});
             redisClient.hSet(clientKey, "refresh_token", response.refresh_token);
-            res.setHeader('Set-Cookie', cookie.serialize("balls", clientKey, {
-                httpOnly: true,
-                sameSite: 'none',
-            }));
-            res.redirect("http://localhost:3000/SpotifyAPI?" + querystring.stringify({
-                "authorized": true
-            }));
+            res.redirect(redirectUrl+"/SpotifyAPI");
     } else {
         console.log("state does not match")
     }
 });
 
-app.post('/refreshToken', cors(corsOptions), async function(req, res){
-    const clientKey = getClientKey()
-    const refreshToken = redisClient.hGet(clientKey, 'refresh_token');
+app.post('/getArtists', cors(corsOptions), async function(req, res) {
+    const clientKey = getClientKey(req);
+    const endPoint = "https://api.spotify.com/v1/search";
+    const searchKey = req.body.searchKey;
+    console.log(searchKey)
+    if (validation(req)){
 
     const payload = {
         method: 'post',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': 'Basic ' + (new Buffer.from(clientId + ':' + clientSecret).toString('base64')),
+            'Authorization': "Bearer "+getAccessToken(clientKey)
         },
         body: new URLSearchParams({
-            client_id: clientId,
-            grant_type: 'refresh_token',
-            refresh_token: refreshToken
+            q: searchKey,
+            type: "artist"
         }),
         }
 
-        const body = await fetch(tokenEndpoint, payload);
+        const body = await fetch(endPoint, payload);
         const response = await body.json();
         console.log(response);
-        redisClient.hSet(clientKey, "access_token", response.access_token);
-        redisClient.hSet(clientKey, "refresh_token", response.refresh_token);
-})
+
+    return response;
+}
+});
 
 async function dbConnect(){
     try {

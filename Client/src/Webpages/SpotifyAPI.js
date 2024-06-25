@@ -11,13 +11,22 @@ function SpotifyAPI(){
     const [artists, setArtists] = useState([]);
     const [Results, setResults] = useState("")
     const [artistId, setArtistId] = useState();
-    const urlParams = new URLSearchParams(window.location.search);
-    const authorized = urlParams.get("authorized");
+    const [validation, setValidation] = useState();
 
-    if (urlParams.get("authorized")){
-        window.sessionStorage.setItem("authorized", urlParams.get("authorized"))
+    useEffect(() => {
+        getValidation();
+    }, []);
+
+    function tryCatchRefresh(fn) {
+        try {
+            fn()
+        } catch (err){
+            console.log(err)
+            if (err.status === 401) {
+                refreshToken()
+            }
+        }
     }
-
     function getAuth(){
         try {
             Axios({
@@ -35,12 +44,11 @@ function SpotifyAPI(){
     function refreshToken() {
         Axios({
             method: 'post',
-            url: apiUrl+'/refreshToken',
+            url: apiUrl+'refreshToken',
             withCredentials: true
-        }).then((response => {
-            window.localStorage.setItem("access_token", response.access_token);
-            window.localStorage.setItem("refresh_token", response.refresh_token);
-        }))
+        }).then(() => {
+            window.location.reload();
+        });
     }
     //if the user entered nothing or uses the * character (explained more later) then set the results state to false/none and prevents the search from running
         //as for the * character, in the actual spotify app you can search with the * character, however the API seems to despise it.
@@ -52,57 +60,42 @@ function SpotifyAPI(){
             return;
         }
         window.localStorage.setItem("userSearch", searchKey);
-        getArtists();
+        tryCatchRefresh(getArtists);
     }, [searchKey]);
 
     //sets the token state to blank and removes the localStorage token
-    const logout = () => {
-        window.localStorage.removeItem("access_token");
-        window.sessionStorage.removeItem("authorized");
-        window.location.href = redirectUri+"SpotifyAPI";
+    function logout(){
+        Axios({
+            method: 'get',
+            url: apiUrl+'logOut',
+            withCredentials: true
+        });
+        window.location.reload();
     }
 
     //we use axios as it is more secure (prevents xsrf), but functions similarly to a fetch request
     //we use an async function with await to ensure that no further code is executed before the fetch request is complete
     //we also use a try catch statement to ensure the webpage does not crash as well as provide error responses
     //lastly, we set the state of artists to an array of all the items for each artist in the data we fetched
-    const getArtists = async () => {
+    function getArtists(){
         if (searchKey) {
-        try{
-            const {data} = await Axios.get("https://api.spotify.com/v1/search", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                params: {
-                    q: searchKey,
-                    type: "artist"
-                }
-            })
-
-        //if the user enteres a value and there are no artists, set the Results state to false, and set to true in any other case (if there's at least 1 artist)
-        if (data.artists.items.length === 0) {
-            setResults("");
-        } else {
-            setResults("true");
-        }
-        setArtists(data.artists.items);
-
-    }catch(error){
-        if (error.response.status === 401 && window.localStorage.getItem("refresh_token")) {
             Axios({
                 method: 'post',
-                url: apiUrl+'refreshToken',
-                data: {
-                    refreshToken: window.localStorage.getItem("refresh_token"),
-                }
+                url: apiUrl+'getArtists',
+                data: {searchKey: searchKey},
+                withCredentials: true
             }).then((response) => {
-                window.localStorage.setItem('access_token', response.data.access_token);
-                window.localStorage.setItem('refresh_token', response.data.refresh_token);
-                //window.location.href = redirectUri+"SpotifyAPI";
+                console.log(response)
+                const data = response.data;
+                //if the user enteres a value and there are no artists, set the Results state to false, and set to true in any other case (if there's at least 1 artist)
+                if (data.artists.items.length === 0) {
+                    setResults("");
+                } else {
+                    setResults("true");
+                }
+                setArtists(data.artists.items);
             })
         }
-    } 
-    }
 }
 
     //renders the genres of a particular artist in case they have more than one genre
@@ -160,7 +153,7 @@ function SpotifyAPI(){
 
     //allows the user to login to spotify (or log out if they are already logged in)
     const LoginOut = () => {
-        if (authorized) {
+        if (!validation) {
             return (
                 <div>
                     <button onClick={()=> {getAuth()}}>Login</button>
@@ -175,13 +168,26 @@ function SpotifyAPI(){
         }
     }
 
+    function getValidation() {
+        Axios({
+            method: 'get',
+            url: apiUrl+"getValidation",
+            withCredentials: true
+        }).then((response) => {
+            if (response.data.status === 403) {
+                setValidation(false)
+            } else {
+                setValidation(true);
+            }
+        })
+    }
     //displays the search text input as well as a message informing the user to login to use the spoitfy API if they are not
     //also displays all the render components
     return(
         <div className="bg-gray-400 min-h-screen max-h-full">
             <div className="ml-20 flex gap-10">
             {LoginOut()}
-            {token ? 
+            {validation ? 
                 <form className="flex"> 
                     <p className="text-black text-2xl mr-3">Search here: </p><input className="text-black border border-black bg-gray-500 rounded-md pl-2" type="text" placeholder="Search Artist Here" onChange={e => setSearchKey(e.target.value)}/>
                 </form>
