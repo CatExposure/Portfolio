@@ -79,7 +79,7 @@ function SpotifyAPI(){
                 method: 'post',
                 url: apiUrl+'getArtists',
                 withCredentials: true,
-                data: {searchKey: searchKey},
+                data: {searchKey},
                 
             }).then((response) => {
                 console.log(response)
@@ -171,11 +171,7 @@ function SpotifyAPI(){
             url: apiUrl+"getValidation",
             withCredentials: true
         }).then((response) => {
-            if (response.data.status === 403) {
-                setValidation(false)
-            } else {
-                setValidation(true);
-            }
+            setValidation(response.data)
         })
     }
     //displays the search text input as well as a message informing the user to login to use the spoitfy API if they are not

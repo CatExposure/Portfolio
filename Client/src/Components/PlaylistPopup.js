@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import {PlayCircleIcon, PauseCircleIcon, ArrowDownIcon, BackwardIcon, ForwardIcon} from '@heroicons/react/24/outline';
+import { apiUrl } from './Api';
 
 //grabs the token and artistId so that we can find the tracks for the particular artist the user clicked on
 //we use 'useRef' for the audioplayer, otherwise every re-render will create another instance of an audioPlayer
@@ -44,21 +45,17 @@ function PlaylistPopup(props) {
     //had to change the get request as the Spotify API params dont support 'top-tracks'. Also, country is for some reason a required param
     const getArtistAlbum = async() => {
             if (artistId) {
-        try{
-            let artistUrl = "https://api.spotify.com/v1/artists/"+artistId+"/top-tracks"
-            const {data} = await axios.get(artistUrl, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }, 
-                    params: {
-                        country: "NA"
-                    }
-                })
-                setArtistTracks(data.tracks);
+            axios({
+                method: 'post',
+                url: apiUrl+'getSongs',
+                withCredentials: true,
+                data: {artistId},
+            }).then((response) => {
+                setArtistTracks(response.data.tracks);
                 setIsOpen(true);
-            }catch(err) {
+            }).catch((err) => { 
                 console.log(err);
-            }
+            })
         }
     }
     //converts ms into M:S

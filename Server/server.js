@@ -106,13 +106,14 @@ function getClientKey(req){
 
 async function getAccessToken(clientKey){
     try{
+        console.log(await redisClient.hGet(clientKey, 'access_token'))
         return await redisClient.hGet(clientKey, 'access_token');
     }catch{
         return false};
 }
 
 async function refreshToken(clientKey) {
-    const refreshToken = redisClient.hGet(clientKey, 'refresh_token');
+    const refreshToken = await redisClient.hGet(clientKey, 'refresh_token');
 
     const payload = {
         method: 'post',
@@ -129,26 +130,25 @@ async function refreshToken(clientKey) {
 
         const body = await fetch(tokenEndpoint, payload);
         const response = await body.json();
-        console.log(response);
-        redisClient.hSet(clientKey, "access_token", response.access_token, {EX: response.expires_in});
+        redisClient.hSet(clientKey, "access_token", response.access_token);
         redisClient.hSet(clientKey, "refresh_token", response.refresh_token);
+        redisClient.hSet(clientKey, "expire_date", getExpireDate().toString());
 }
 
+async function accessTokenExpired(clientKey){
+    const expireDate = new Date(await redisClient.hGet(clientKey, 'expire_date'));
+    const curDate = new Date();
+    return (curDate > expireDate)
+}
 async function validation(req){
     const clientKey = getClientKey(req);
-    console.log(clientKey)
-    if (!await getAccessToken(clientKey)){
-        if (!await redisClient.hExists(clientKey, "refresh_token")){
-            const error = {
-                status: 403,
-                message: "User not logged in"
-            }
-            return error
-        }
+    if (await redisClient.hExists(clientKey, 'refresh_token')){
+        if (accessTokenExpired(clientKey) || !await redisClient.hExists(clientKey, 'access_token')){
             refreshToken(clientKey);
             return true;
+        }
     } else{
-        return true;
+        return false;
     }
 }
 
@@ -160,6 +160,13 @@ app.get("/logOut", cors(corsOptions), function(req, res){
     const clientKey = getClientKey(req);
     redisClient.del(clientKey);
 });
+
+function getExpireDate(){
+    const addHours = 1 * 60 * 60 * 1000
+    let expireDate = new Date();
+    expireDate.setTime(expireDate.getTime() + addHours);
+    return expireDate;
+}
 
 app.get("/token", cors(corsOptions), async function(req, res){
     const state = req.query.state;
@@ -189,8 +196,9 @@ app.get("/token", cors(corsOptions), async function(req, res){
 
             const body = await fetch(tokenEndpoint, payload);
             const response = await body.json();
-            redisClient.hSet(clientKey, "access_token", response.access_token, {EX: response.expires_in});
+            redisClient.hSet(clientKey, "access_token", response.access_token);
             redisClient.hSet(clientKey, "refresh_token", response.refresh_token);
+            redisClient.hSet(clientKey, "expire_date", getExpireDate().toString());
             res.redirect(redirectUrl+"/SpotifyAPI");
     } else {
         console.log("state does not match")
@@ -222,6 +230,27 @@ app.post('/getArtists', cors(corsOptions), async function(req, res) {
         }).catch((err) => {console.log(err)})
 }
 });
+
+app.post('/getSongs', cors(corsOptions), async function(req, res){
+    const clientKey = getClientKey(req);
+    const artistId = req.body.artistId
+    let endPoint = "https://api.spotify.com/v1/artists/"+artistId+"/top-tracks"
+    let accessToken = await getAccessToken(clientKey);
+    if (validation(req)){
+        Axios({
+            method: 'get',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            },
+            url: endPoint,
+            params: {
+                country: "NA"
+            }
+        }).then((response) => {
+            console.log(response.data)
+            res.send(response.data);
+        }).catch((err) => {console.log(err)})
+}})
 
 async function dbConnect(){
     try {
