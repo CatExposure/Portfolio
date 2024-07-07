@@ -28,7 +28,6 @@ function SpotifyAPI(){
         }
     }
     function getAuth(){
-        try {
             Axios({
                 method: 'post',
                 url: apiUrl+'authorization',
@@ -36,9 +35,6 @@ function SpotifyAPI(){
             }).then ((response) => {
                 window.location.href = response.data.authUrl;
             })
-        } catch(err) {
-            console.log(err)
-        }
     }
 
     function refreshToken() {
@@ -60,7 +56,7 @@ function SpotifyAPI(){
             return;
         }
         window.localStorage.setItem("userSearch", searchKey);
-        tryCatchRefresh(getArtists);
+        getArtists();
     }, [searchKey]);
 
     //sets the token state to blank and removes the localStorage token
@@ -82,8 +78,9 @@ function SpotifyAPI(){
             Axios({
                 method: 'post',
                 url: apiUrl+'getArtists',
+                withCredentials: true,
                 data: {searchKey: searchKey},
-                withCredentials: true
+                
             }).then((response) => {
                 console.log(response)
                 const data = response.data;

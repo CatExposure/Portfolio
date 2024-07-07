@@ -14,6 +14,7 @@
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
     "@types/connect-redis": "^0.0.23",
+    "axios": "^1.7.2",
     "connect-redis": "^7.1.1",
     "cookie": "^0.6.0",
     "cors": "^2.8.5",
@@ -24,6 +25,7 @@
     "redis": "^4.6.14"
   },
   "devDependencies": {
+    "http-proxy-middleware": "^3.0.0",
     "nodemon": "^2.0.12"
   }
 }

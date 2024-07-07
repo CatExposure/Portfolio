@@ -3,8 +3,9 @@ const oracledb = require('oracledb');
 const express = require('express');
 const cors = require('cors');
 const redis = require('redis');
-const querystring = require('querystring');
+const Axios = require('axios');
 var cookie = require('cookie');
+const querystring = require('node:querystring'); 
 const app = express();
 require("dotenv").config();
 let connect;
@@ -33,15 +34,16 @@ redisClient.on('ready', function(err){
 
 app.set('port', 5000);
 app.use(express.json());
-app.use(cors());
 
 const corsOptions = {
     origin: ["https://protosite.online", "http://localhost:3000"],
-    optionsSucessStatus: 200,
+    optionsSucessStatus: 204,
     credentials: true,
 };
-//encodes a random string produced by the codeVerifier
 
+app.options('*', cors(corsOptions));
+
+//encodes a random string produced by the codeVerifier
 function base64URLEncode(str) {
     return str.toString('base64')
     //read regex to understand what this is doing
@@ -58,7 +60,8 @@ function sha256(buffer) {
 const privateKey = crypto.randomBytes(32);
 var codeVerifier = base64URLEncode(crypto.randomBytes(32));
 
-app.post('/authorization', cors(corsOptions), async function(_req, res) {
+app.post('/authorization', cors(corsOptions), async function(req, res) {
+    console.log(req.headers)
     //creating 3 randomized codes
     const clientKey = base64URLEncode(crypto.randomBytes(32));
     var randomStr = base64URLEncode(crypto.randomBytes(32));
@@ -97,6 +100,7 @@ app.post('/authorization', cors(corsOptions), async function(_req, res) {
 });
 
 function getClientKey(req){
+    console.log(req.headers)
     return cookie.parse(req.headers.cookie).clientKey;
 }
 
@@ -195,27 +199,27 @@ app.get("/token", cors(corsOptions), async function(req, res){
 
 app.post('/getArtists', cors(corsOptions), async function(req, res) {
     const clientKey = getClientKey(req);
-    const endPoint = "https://api.spotify.com/v1/search";
+    let endPoint = "https://api.spotify.com/v1/search?";
     const searchKey = req.body.searchKey;
-    console.log(searchKey)
+    let accessToken = await getAccessToken(clientKey);
     if (validation(req)){
 
-    const payload = {
-        method: 'post',
-        headers: {
-            'Authorization': "Bearer "+getAccessToken(clientKey)
-        },
-        body: new URLSearchParams({
+        const params = querystring.stringify({
             q: searchKey,
             type: "artist"
-        }),
-        }
-
-        const body = await fetch(endPoint, payload);
-        const response = await body.json();
-        console.log(response);
-
-    return response;
+        });
+        endPoint = endPoint+params
+        console.log(params)
+        Axios({
+            method: 'get',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            },
+            url: endPoint
+        }).then((response) => {
+            console.log(response.data)
+            res.send(response.data);
+        }).catch((err) => {console.log(err)})
 }
 });
 
