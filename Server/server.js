@@ -115,15 +115,31 @@ async function accessTokenExpired(clientKey){
 async function validation(req){
     const clientKey = getClientKey(req);
     //if the user exists
-    if (clientKey){
+    if (await redisClient.exists(clientKey)){
         //if the clients access token is expired, or does not have one
-        if (accessTokenExpired(clientKey) || !await redisClient.hExists(clientKey, 'access_token')){
+        if (await accessTokenExpired(clientKey) || !await redisClient.hExists(clientKey, 'access_token')){
             refreshToken(clientKey);
             return true;
         }
     } else{
         return false;
     }
+}
+
+//used as a simpler way to get the client key from the cookie
+function getClientKey(req){
+    //ensure the user has a key
+    if (req.headers.cookie){
+        return cookie.parse(req.headers.cookie).clientKey;
+    }
+}
+
+//used as a simple way to obtain the users access token
+async function getAccessToken(clientKey){
+    try{
+        return await redisClient.hGet(clientKey, 'access_token');
+    }catch{
+        return false};
 }
 
 app.post('/authorization', cors(corsOptions), async function(req, res) {
@@ -167,22 +183,6 @@ app.post('/authorization', cors(corsOptions), async function(req, res) {
         authUrl,
     });
 });
-
-//used as a simpler way to get the client key from the cookie
-function getClientKey(req){
-    //ensure the user has a key
-    if (req.headers.cookie){
-        return cookie.parse(req.headers.cookie).clientKey;
-    }
-}
-
-//used as a simple way to obtain the users access token
-async function getAccessToken(clientKey){
-    try{
-        return await redisClient.hGet(clientKey, 'access_token');
-    }catch{
-        return false};
-}
 
 //this is used every reload/first render to determine if the user has a valid access token
 //and acquire a new one if the old one is expired

@@ -85,15 +85,15 @@ function PlaylistPopup(props) {
     function displayPlaying() {
         if (ArtistTracks[itemId] != undefined) {
             console.log(ArtistTracks[itemId]);
-            return <div className='relative flex'><img className='border rounded-[50%] border-transparent' src={ArtistTracks[itemId].album.images[0].url}></img><label className='ml-3 my-auto'>{ArtistTracks[itemId].name}</label></div>
+            return <div className='relative flex ml-5'><img className='border rounded-[50%] border-transparent' src={ArtistTracks[itemId].album.images[0].url}></img><label className='ml-3 my-auto'>{ArtistTracks[itemId].name}</label></div>
         } else {
             return 
         }
     }
 
     return (
-    <div className={`${isOpen ? "h-full w-full" : "h-[13vh] w-full"} transition-all duration-[400ms] bg-gray-400 fixed bottom-0`}>
-        <ArrowDownIcon className={`${isOpen ? "" : "rotate-180"} z-10 transition-all relative h-10`} onClick={()=>{setIsOpen(!isOpen)}}/>
+    <div className={`${isOpen ? "h-full w-full overflow-y-scroll" : "h-[13vh] w-full"} transition-all duration-[400ms] bg-gray-400 fixed bottom-0`}>
+        <ArrowDownIcon className={`${isOpen ? "" : "rotate-180"} z-10 transition-all fixed h-10`} onClick={()=>{setIsOpen(!isOpen)}}/>
             {ArtistTracks.map(item => (
                 <div key={item.id} className='flex border bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
                         <img src={item.album.images[0].url} alt='' className='trackImg'></img>
@@ -115,8 +115,14 @@ function PlaylistPopup(props) {
                             };
                         }}>{changeButtonImg(item.preview_url)}</button>
                 </div>))}<div className="h-[10vh]"></div>
-            <div className='flex fixed bg-gray-500 border border-black h-[13vh] bottom-0 justify-evenly w-full'>
-                {displayPlaying()}
+                
+{/**----------------------------------------------------------Popup Bar---------------------------------------------------------------------------- */}
+            
+            <div className='flex fixed bg-gray-500 border border-black h-[13vh] bottom-0 w-full'>
+                <div className="flex flex-1">
+                    {displayPlaying()}
+                </div>
+                <div className="flex flex-1 justify-center">
                 <div className='flex flex-col justify-center items-center'>
                 <div className='flex gap-5'>
                 <button className='' onClick={() => {
@@ -149,7 +155,9 @@ function PlaylistPopup(props) {
                 }}}><ForwardIcon className='h-10'/></button>
                 </div>
                 </div>
-                <div className='flex items-center'>
+                </div>
+                <div className="flex flex-1 flex-col justify-center items-center">
+                    <p>Test</p>
                 </div>
             </div>
     </div>
