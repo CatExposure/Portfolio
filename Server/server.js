@@ -120,6 +120,8 @@ async function validation(req){
         if (await accessTokenExpired(clientKey) || !await redisClient.hExists(clientKey, 'access_token')){
             refreshToken(clientKey);
             return true;
+        } else {
+            return true
         }
     } else{
         return false;

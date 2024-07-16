@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import {PlayCircleIcon, PauseCircleIcon, ArrowDownIcon, BackwardIcon, ForwardIcon} from '@heroicons/react/24/outline';
+import {PlayCircleIcon, PauseCircleIcon, ArrowDownIcon, BackwardIcon, ForwardIcon, SpeakerWaveIcon, SpeakerXMarkIcon} from '@heroicons/react/24/outline';
 import { apiUrl } from './Api';
 
 //grabs the token and artistId so that we can find the tracks for the particular artist the user clicked on
@@ -12,18 +12,19 @@ import { apiUrl } from './Api';
 //we also do not want to load every render, as that would cause the 'currentTime' property to reset
 function PlaylistPopup(props) {
     const artistId = props.artistId;
-    const token = window.localStorage.getItem("access_token");
     const audioPlayer = React.useRef(new Audio());
+    var storedVolume = React.useRef(.5);
     const [ArtistTracks, setArtistTracks] = React.useState([]);
     const [isPlaying, setPlaying] = React.useState(false);
     const [urlSrc, setSrc] = React.useState();
     const [itemId, setItemId] = React.useState(0);
     const [isOpen, setIsOpen] = React.useState(false);
+    const [audioVolume, setVolume] = React.useState(.5)
     const toggle = () => setPlaying(!isPlaying);
 
     isPlaying ? playAudio() : pauseAudio()
-    
-    audioPlayer.current.volume = .05; 
+    console.log(audioVolume);
+    audioPlayer.current.volume = audioVolume
 
     React.useEffect(() => {
         getArtistAlbum();
@@ -85,9 +86,23 @@ function PlaylistPopup(props) {
     function displayPlaying() {
         if (ArtistTracks[itemId] != undefined) {
             console.log(ArtistTracks[itemId]);
-            return <div className='relative flex ml-5'><img className='border rounded-[50%] border-transparent' src={ArtistTracks[itemId].album.images[0].url}></img><label className='ml-3 my-auto'>{ArtistTracks[itemId].name}</label></div>
+            return <div className='relative flex ml-16'><img className='border rounded-[50%] border-transparent' src={ArtistTracks[itemId].album.images[0].url}></img><div className='flex flex-col'><label className='text-2xl mt-3 ml-3 my-auto'>{ArtistTracks[itemId].name}</label><label className='text-sm ml-3 my-auto'>{ArtistTracks[itemId].artists[0].name}</label><div className='flex-1'></div></div></div>
         } else {
             return 
+        }
+    }
+
+    function speakerIcon() {
+        if (audioVolume == 0) {
+            return <SpeakerXMarkIcon className='h-10' onClick={() => {
+                setVolume(storedVolume.current);
+            }}/>
+        } else {
+            return <SpeakerWaveIcon className='h-10' onClick={() => {
+                storedVolume.current = audioVolume;
+                console.log(storedVolume.current)
+                setVolume(0);
+            }}/>
         }
     }
 
@@ -156,8 +171,9 @@ function PlaylistPopup(props) {
                 </div>
                 </div>
                 </div>
-                <div className="flex flex-1 flex-col justify-center items-center">
-                    <p>Test</p>
+                <div className="flex flex-1 justify-center items-center">
+                    {speakerIcon()}
+                    <input className='ml-5' type="range" min="0" max="1" value={audioVolume} step=".01" onChange={(e)=> {setVolume(e.target.value)}}/>
                 </div>
             </div>
     </div>
