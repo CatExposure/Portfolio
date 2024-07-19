@@ -14,7 +14,9 @@ function PlaylistPopup(props) {
     const artistId = props.artistId;
     const audioPlayer = React.useRef(new Audio());
     var storedVolume = React.useRef(.5);
+    var sliderDragging = React.useRef(false);
     const [ArtistTracks, setArtistTracks] = React.useState([]);
+    const [currentTime, setCurrentTime] = React.useState()
     const [isPlaying, setPlaying] = React.useState(false);
     const [urlSrc, setSrc] = React.useState();
     const [itemId, setItemId] = React.useState(0);
@@ -26,6 +28,13 @@ function PlaylistPopup(props) {
     console.log(audioVolume);
     audioPlayer.current.volume = audioVolume
 
+
+    audioPlayer.current.ontimeupdate = (e) => {
+        if(!sliderDragging.current){
+        setCurrentTime(audioPlayer.current.currentTime)
+        }
+    }
+
     React.useEffect(() => {
         getArtistAlbum();
     }, [artistId]);
@@ -36,7 +45,10 @@ function PlaylistPopup(props) {
     }, [urlSrc]);
 
     function playAudio() {
+        console.log(sliderDragging.current)
+        if(!sliderDragging.current){
         audioPlayer.current.play()
+        }
     }
 
     function pauseAudio() {
@@ -100,9 +112,16 @@ function PlaylistPopup(props) {
         } else {
             return <SpeakerWaveIcon className='h-10' onClick={() => {
                 storedVolume.current = audioVolume;
-                console.log(storedVolume.current)
                 setVolume(0);
             }}/>
+        }
+    }
+
+    console.log(currentTime)
+    function songSlider() {
+        if (audioPlayer.current.src) {
+            return <input type="range" min="0" max={audioPlayer.current.duration} value={currentTime} onMouseDown={() => {sliderDragging.current = true; audioPlayer.current.pause();}} onMouseUp={() => {sliderDragging.current = false; audioPlayer.current.play();}} step="1" onChange={(e) => 
+                {audioPlayer.current.currentTime = parseInt(e.target.value); setCurrentTime(parseInt(e.target.value))}}/>
         }
     }
 
@@ -169,6 +188,7 @@ function PlaylistPopup(props) {
                         };
                 }}}><ForwardIcon className='h-10'/></button>
                 </div>
+                    {songSlider()}
                 </div>
                 </div>
                 <div className="flex flex-1 justify-center items-center">
