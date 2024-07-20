@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import {PlayCircleIcon, PauseCircleIcon, ArrowDownIcon, BackwardIcon, ForwardIcon, SpeakerWaveIcon, SpeakerXMarkIcon} from '@heroicons/react/24/outline';
+import {PlayCircleIcon, PauseCircleIcon, ArrowDownIcon, BackwardIcon, ForwardIcon, SpeakerWaveIcon, SpeakerXMarkIcon, ArrowUturnLeftIcon, ArrowUturnRightIcon} from '@heroicons/react/24/outline';
 import { apiUrl } from './Api';
 
 //grabs the token and artistId so that we can find the tracks for the particular artist the user clicked on
@@ -71,6 +71,7 @@ function PlaylistPopup(props) {
             })
         }
     }
+
     //converts ms into M:S
     function convertMs(mS) {
         var minutes = Math.floor(mS / 60000);
@@ -129,7 +130,7 @@ function PlaylistPopup(props) {
     <div className={`${isOpen ? "h-full w-full overflow-y-scroll" : "h-[13vh] w-full"} transition-all duration-[400ms] bg-gray-400 fixed bottom-0`}>
         <ArrowDownIcon className={`${isOpen ? "" : "rotate-180"} z-10 transition-all fixed h-10`} onClick={()=>{setIsOpen(!isOpen)}}/>
             {ArtistTracks.map(item => (
-                <div key={item.id} className='flex border bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
+                <div key={item.id} className='flex border mx-auto bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
                         <img src={item.album.images[0].url} alt='' className='trackImg'></img>
                     <div>
                         <p className="text-3xl">{item.name}</p>
@@ -159,6 +160,11 @@ function PlaylistPopup(props) {
                 <div className="flex flex-1 justify-center">
                 <div className='flex flex-col justify-center items-center'>
                 <div className='flex gap-5'>
+                <button onClick={() => {
+                    audioPlayer.current.currentTime = audioPlayer.current.currentTime - 5;
+                }}>
+                    <ArrowUturnLeftIcon className='h-10'/>
+                </button>
                 <button className='' onClick={() => {
                     if (itemId > 0){
                         setPlaying(false)
@@ -187,8 +193,16 @@ function PlaylistPopup(props) {
                             setPlaying(true);
                         };
                 }}}><ForwardIcon className='h-10'/></button>
+                <button onClick={() => {
+                    audioPlayer.current.currentTime = audioPlayer.current.currentTime + 5;
+                }}>
+                    <ArrowUturnRightIcon className='h-10'/>
+                </button>
                 </div>
+                <div>
                     {songSlider()}
+                    <label className='ml-5'>{convertMs(audioPlayer.current.currentTime * 1000)}</label>
+                </div>
                 </div>
                 </div>
                 <div className="flex flex-1 justify-center items-center">
