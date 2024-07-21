@@ -115,7 +115,7 @@ async function accessTokenExpired(clientKey){
 async function validation(req){
     const clientKey = getClientKey(req);
     //if the user exists
-    if (await redisClient.exists(clientKey)){
+    if (clientKey && await redisClient.exists(clientKey)){
         //if the clients access token is expired, or does not have one
         if (await accessTokenExpired(clientKey) || !await redisClient.hExists(clientKey, 'access_token')){
             refreshToken(clientKey);
@@ -133,6 +133,8 @@ function getClientKey(req){
     //ensure the user has a key
     if (req.headers.cookie){
         return cookie.parse(req.headers.cookie).clientKey;
+    } else {
+        return false
     }
 }
 

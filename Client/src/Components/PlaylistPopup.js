@@ -15,10 +15,11 @@ function PlaylistPopup(props) {
     const audioPlayer = React.useRef(new Audio());
     var storedVolume = React.useRef(.5);
     var sliderDragging = React.useRef(false);
+    var currentPlayer = React.useRef();
     const [ArtistTracks, setArtistTracks] = React.useState([]);
     const [currentTime, setCurrentTime] = React.useState()
     const [isPlaying, setPlaying] = React.useState(false);
-    const [urlSrc, setSrc] = React.useState();
+    const [urlSrc, setSrc] = React.useState([{}]);
     const [itemId, setItemId] = React.useState(0);
     const [isOpen, setIsOpen] = React.useState(false);
     const [audioVolume, setVolume] = React.useState(.5)
@@ -98,7 +99,6 @@ function PlaylistPopup(props) {
 
     function displayPlaying() {
         if (ArtistTracks[itemId] != undefined) {
-            console.log(ArtistTracks[itemId]);
             return <div className='relative flex ml-16'><img className='border rounded-[50%] border-transparent' src={ArtistTracks[itemId].album.images[0].url}></img><div className='flex flex-col'><label className='text-2xl mt-3 ml-3 my-auto'>{ArtistTracks[itemId].name}</label><label className='text-sm ml-3 my-auto'>{ArtistTracks[itemId].artists[0].name}</label><div className='flex-1'></div></div></div>
         } else {
             return 
