@@ -118,17 +118,16 @@ function PlaylistPopup(props) {
         }
     }
 
-    console.log(currentTime)
+    console.log(audioPlayer.current)
     function songSlider() {
-        if (audioPlayer.current.src) {
+        if (audioPlayer.current.error === null) {
             return <input type="range" min="0" max={audioPlayer.current.duration} value={currentTime} onMouseDown={() => {sliderDragging.current = true; audioPlayer.current.pause();}} onMouseUp={() => {sliderDragging.current = false; audioPlayer.current.play();}} step="1" onChange={(e) => 
                 {audioPlayer.current.currentTime = parseInt(e.target.value); setCurrentTime(parseInt(e.target.value))}}/>
-        }
+        } else {return <div></div>}
     }
 
     return (
     <div className={`${isOpen ? "h-full w-full overflow-y-scroll" : "h-[13vh] w-full"} transition-all duration-[400ms] bg-gray-400 fixed bottom-0`}>
-        <ArrowDownIcon className={`${isOpen ? "" : "rotate-180"} z-10 transition-all fixed h-10`} onClick={()=>{setIsOpen(!isOpen)}}/>
             {ArtistTracks.map(item => (
                 <div key={item.id} className='flex border mx-auto bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
                         <img src={item.album.images[0].url} alt='' className='trackImg'></img>
@@ -153,7 +152,8 @@ function PlaylistPopup(props) {
                 
 {/**----------------------------------------------------------Popup Bar---------------------------------------------------------------------------- */}
             
-            <div className='flex fixed bg-gray-500 border border-black h-[13vh] bottom-0 w-full'>
+            <div className={`${audioPlayer.current.error ? "h-[0vh]" : "h-[13vh]"} overflow-hidden transition-all duration-300 flex fixed bg-gray-500 border border-black bottom-0 w-full`}>
+            <ArrowDownIcon className={`${isOpen ? "" : "rotate-180"} z-10 transition-all fixed h-10`} onClick={()=>{setIsOpen(!isOpen)}}/>
                 <div className="flex flex-1">
                     {displayPlaying()}
                 </div>
@@ -201,7 +201,7 @@ function PlaylistPopup(props) {
                 </div>
                 <div>
                     {songSlider()}
-                    <label className='ml-5'>{convertMs(audioPlayer.current.currentTime * 1000)}</label>
+                    <label className="ml-5">{convertMs(audioPlayer.current.currentTime * 1000)}</label>
                 </div>
                 </div>
                 </div>
