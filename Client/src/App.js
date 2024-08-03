@@ -11,7 +11,7 @@ import {Route, Routes} from 'react-router-dom';
 function App() {
   return (
     <div className="App">
-      <BannerSection bannerClassName="flex w-full max-h-[20vh] bg-gradient-to-b to-gray-400 from-black py-2" imgClassName="h-28"/>
+      <BannerSection/>
       <NavBar />
       <Routes>
         <Route path="/" Component={Home}/>
