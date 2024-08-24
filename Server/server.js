@@ -308,7 +308,7 @@ async function dbConnect(){
     }
 }
 
-//dbConnect();s
+dbConnect();
 
 app.get('/test', cors(corsOptions), function(req, res) {
     var sql = "SELECT * from USERS"

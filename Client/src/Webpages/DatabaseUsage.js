@@ -316,7 +316,6 @@ function Databases(){
     
     return(
         <div id="body" className="min-h-screen bg-gray-400 text-lg pt-10">
-            <div>Sorry! This webpage is under construction! (because Oracle Sucks)</div>
             <ConfirmationBox/>
             <div className="table-section relative justify-between gap-10 flex flex-auto flex-row">
                     <input type="text" placeholder="Type here to filter" className="border border-black border-2 bg-gray-300  rounded-md text-black placeholder:text-black" onChange={ //filters the tables data based on the users input (has to be an array of objects, not just an object)
