@@ -12,12 +12,6 @@
           "envFile": "${workspaceFolder}/Server/.env"
         },
         {
-          "type": "node",
-          "request": "launch",
-          "name": "Client",
-          "program": "${workspaceFolder}/Client/index.js"
-        },
-        {
             "type": "node-terminal",
             "command": "npm start --prefix ${workspaceFolder}/Client",
             "request": "launch",
@@ -27,7 +21,7 @@
       "compounds": [
         {
           "name": "Server/Client",
-          "configurations": ["Server", "Client", "Client React"],
+          "configurations": ["Server", "Client React"],
           "stopAll": true
         }
       ]
