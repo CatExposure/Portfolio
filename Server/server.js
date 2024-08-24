@@ -11,8 +11,8 @@ require("dotenv").config();
 let connect;
 const mysql = require('mysql2');
 //.ENV THE ID AND SECRET
-const clientId = "b0fddc430d1245ec9a363bee851354d8";
-const clientSecret = "d8a39f5f485749b9aabd92b131e0b8f0";
+const clientId = process.env.CLIENTID;
+const clientSecret = process.env.CLIENTSECRET;
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
 //CHANGE THIS DEPENDING ON IN PRODUCTION OR NOT
 const inProduction = Boolean(false);
