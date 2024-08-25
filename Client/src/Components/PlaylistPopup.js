@@ -15,18 +15,17 @@ function PlaylistPopup(props) {
     const audioPlayer = React.useRef(new Audio());
     var storedVolume = React.useRef(.5);
     var sliderDragging = React.useRef(false);
-    var currentPlayer = React.useRef();
-    const [ArtistTracks, setArtistTracks] = React.useState([]);
+    const [currentArtistTracks, setCurrentTracks] = React.useState([]);
+    const [displayedArtistTracks, setDisplayedTracks] = React.useState([]);
     const [currentTime, setCurrentTime] = React.useState()
     const [isPlaying, setPlaying] = React.useState(false);
-    const [urlSrc, setSrc] = React.useState([{}]);
-    const [itemId, setItemId] = React.useState(0);
+    const [currentTrack, setTrack] = React.useState();
+    const [itemId, setItemId] = React.useState();
     const [isOpen, setIsOpen] = React.useState(false);
     const [audioVolume, setVolume] = React.useState(.5)
     const toggle = () => setPlaying(!isPlaying);
 
     isPlaying ? playAudio() : pauseAudio()
-    console.log(audioVolume);
     audioPlayer.current.volume = audioVolume
 
 
@@ -38,15 +37,16 @@ function PlaylistPopup(props) {
 
     React.useEffect(() => {
         getArtistAlbum();
-    }, [artistId]);
+    }, [artistId]); 
 
     React.useEffect(() => {
-        audioPlayer.current.src = urlSrc;
+        if (currentTrack != undefined) {
+        audioPlayer.current.src = currentTrack.preview_url;
         audioPlayer.current.load();
-    }, [urlSrc]);
+        }
+    }, [currentTrack]);
 
     function playAudio() {
-        console.log(sliderDragging.current)
         if(!sliderDragging.current){
         audioPlayer.current.play()
         }
@@ -56,6 +56,11 @@ function PlaylistPopup(props) {
         audioPlayer.current.pause()
     }
 
+    //for some reason, the audioplayer.current.ended does not fire (more specifically, the playbackrate cannot be positive in order for it to fire)
+    //this is just a simpler solution
+    audioPlayer.current.onended = () => {
+        nextSong();
+    }
     //had to change the get request as the Spotify API params dont support 'top-tracks'. Also, country is for some reason a required param
     const getArtistAlbum = async() => {
             if (artistId) {
@@ -65,7 +70,7 @@ function PlaylistPopup(props) {
                 withCredentials: true,
                 data: {artistId},
             }).then((response) => {
-                setArtistTracks(response.data.tracks);
+                setDisplayedTracks(response.data.tracks);
                 setIsOpen(true);
             }).catch((err) => { 
                 console.log(err);
@@ -98,8 +103,18 @@ function PlaylistPopup(props) {
     };
 
     function displayPlaying() {
-        if (ArtistTracks[itemId] != undefined) {
-            return <div className='relative flex ml-16'><img className='border rounded-[50%] border-transparent' src={ArtistTracks[itemId].album.images[0].url}></img><div className='flex flex-col'><label className='text-2xl mt-3 ml-3 my-auto'>{ArtistTracks[itemId].name}</label><label className='text-sm ml-3 my-auto'>{ArtistTracks[itemId].artists[0].name}</label><div className='flex-1'></div></div></div>
+        if (currentTrack) {
+            return (
+            <div className='relative flex ml-16'><img className='border rounded-[50%] border-transparent' src={currentTrack.album.images[0].url}></img>
+                <div className='flex flex-col'>
+                    <label className='text-2xl mt-3 ml-3 my-auto'>{currentTrack.name}</label>
+                    <label className='text-sm ml-3 my-auto' onClick={()=> {
+
+                        setDisplayedTracks(currentArtistTracks);
+                    }}>{currentTrack.artists[0].name}</label>
+                    <div className='flex-1'></div>
+                </div>
+            </div>)
         } else {
             return 
         }
@@ -118,7 +133,30 @@ function PlaylistPopup(props) {
         }
     }
 
-    console.log(audioPlayer.current)
+    function nextSong(){
+        setPlaying(false)
+        let newItemId = itemId+1
+        if (currentArtistTracks[newItemId]) {
+        setTrack(currentArtistTracks[newItemId]);
+        setItemId(newItemId);
+        audioPlayer.current.oncanplay = function() {
+            //for some reason, toggle does NOT work here, even though it should do the exact same thing
+            setPlaying(true);
+        }};
+    }
+
+    function previousSong(){
+        setPlaying(false)
+        let newItemId = itemId-1
+        if (currentArtistTracks[newItemId]) {
+        setTrack(currentArtistTracks[newItemId]);
+        setItemId(newItemId);
+        audioPlayer.current.oncanplay = function() {
+            //for some reason, toggle does NOT work here, even though it should do the exact same thing
+            setPlaying(true);
+        }};
+    }
+
     function songSlider() {
         if (audioPlayer.current.error === null) {
             return <input type="range" min="0" max={audioPlayer.current.duration} value={currentTime} onMouseDown={() => {sliderDragging.current = true; audioPlayer.current.pause();}} onMouseUp={() => {sliderDragging.current = false; audioPlayer.current.play();}} step="1" onChange={(e) => 
@@ -127,8 +165,8 @@ function PlaylistPopup(props) {
     }
 
     return (
-    <div className={`${isOpen ? "h-full w-full overflow-y-scroll" : "h-[13vh] w-full"} transition-all duration-[400ms] bg-gray-400 fixed bottom-0`}>
-            {ArtistTracks.map(item => (
+    <div className={`${isOpen ? "h-full w-full overflow-y-scroll" : "h-[0vh] w-full"} transition-all duration-[400ms] bg-gray-400 fixed bottom-0`}>
+            {displayedArtistTracks.map(item => (
                 <div key={item.id} className='flex border mx-auto bg-gray-500 border-black w-[50%] mb-5 h-[20vh]'>
                         <img src={item.album.images[0].url} alt='' className='trackImg'></img>
                     <div>
@@ -140,60 +178,44 @@ function PlaylistPopup(props) {
                                 toggle();
                             } else {
                                 setPlaying(false);
-                                setSrc(item.preview_url);
-                                setItemId(ArtistTracks.indexOf(item));
+                                setCurrentTracks(displayedArtistTracks);
+                                setTrack(item);
+                                setItemId(currentArtistTracks.indexOf(item));
                                 audioPlayer.current.oncanplay = function() {
                                     //for some reason, toggle does NOT work here, even though it should do the exact same thing
                                     setPlaying(true);
                                 };
                             };
                         }}>{changeButtonImg(item.preview_url)}</button>
-                </div>))}<div className="h-[10vh]"></div>
+                </div>))}<div className={`${isOpen? "h-[13vh]" : "h-[0vh]"}`}></div>
                 
-{/**----------------------------------------------------------Popup Bar---------------------------------------------------------------------------- */}
+{/**----------------------------------------------------------Media Bar---------------------------------------------------------------------------- */}
             
-            <div className={`${audioPlayer.current.error ? "h-[0vh]" : "h-[13vh]"} overflow-hidden transition-all duration-300 flex fixed bg-gray-500 border border-black bottom-0 w-full`}>
-            <ArrowDownIcon className={`${isOpen ? "" : "rotate-180"} z-10 transition-all fixed h-10`} onClick={()=>{setIsOpen(!isOpen)}}/>
+            <div className="h-[13vh] overflow-hidden transition-all duration-300 flex fixed bg-gray-500 border border-black bottom-0 w-full">
+            <button disabled={displayedArtistTracks.length===0} className={`${isOpen ? "" : "rotate-180"} z-10 transition-all fixed`} onClick={()=>{setIsOpen(!isOpen)}}><ArrowDownIcon className='h-10'/></button>
                 <div className="flex flex-1">
                     {displayPlaying()}
                 </div>
                 <div className="flex flex-1 justify-center">
                 <div className='flex flex-col justify-center items-center'>
                 <div className='flex gap-5'>
-                <button onClick={() => {
+                <button disabled={audioPlayer.current.error} onClick={() => {
                     audioPlayer.current.currentTime = audioPlayer.current.currentTime - 5;
                 }}>
                     <ArrowUturnLeftIcon className='h-10'/>
                 </button>
-                <button className='' onClick={() => {
+                <button disabled={audioPlayer.current.error} onClick={() => {
                     if (itemId > 0){
-                        setPlaying(false)
-                        let newItemId = itemId-1
-                        let newSrc = ArtistTracks[newItemId].preview_url;
-                        setSrc(newSrc);
-                        setItemId(newItemId);
-                        audioPlayer.current.oncanplay = function() {
-                            //for some reason, toggle does NOT work here, even though it should do the exact same thing
-                            setPlaying(true);
-                        };
+                        previousSong();
                 }}}><BackwardIcon className='h-10'/></button>
-                <button className='' onClick={() => {
+                <button disabled={audioPlayer.current.error} onClick={() => {
                             toggle();
                         }}>{isPlaying ? <PauseCircleIcon className='h-10'/> : <PlayCircleIcon className='h-10'/>}</button>
-                <button className='' onClick={() => {
-                    console.log(ArtistTracks.length)
-                    if (itemId < ArtistTracks.length-1){
-                        setPlaying(false)
-                        let newItemId = itemId+1
-                        let newSrc = ArtistTracks[newItemId].preview_url;
-                        setSrc(newSrc);
-                        setItemId(newItemId);
-                        audioPlayer.current.oncanplay = function() {
-                            //for some reason, toggle does NOT work here, even though it should do the exact same thing
-                            setPlaying(true);
-                        };
-                }}}><ForwardIcon className='h-10'/></button>
-                <button onClick={() => {
+                <button disabled={audioPlayer.current.error} onClick={() => {
+                    if (itemId < currentArtistTracks.length-1){
+                        nextSong();
+                    }}}><ForwardIcon className='h-10'/></button>
+                <button disabled={audioPlayer.current.error} onClick={() => {
                     audioPlayer.current.currentTime = audioPlayer.current.currentTime + 5;
                 }}>
                     <ArrowUturnRightIcon className='h-10'/>

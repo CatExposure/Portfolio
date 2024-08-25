@@ -11,6 +11,7 @@ function SpotifyAPI(){
     const [Results, setResults] = useState("")
     const [artistId, setArtistId] = useState();
     const [validation, setValidation] = useState();
+    const [toolTip, tooltipVisible] = useState([]);
 
     useEffect(() => {
         getValidation();
@@ -77,15 +78,26 @@ function SpotifyAPI(){
     //maps out the artists and gives each artists a div with their id as the key, then includes an image and their name.
     //if the Results state is false, it will instead show no artists as this state would only be false if the search were to give an error or no artists
     //clicking on a artist send the user to another page to view their top-10 tracks, as well as the ability to play them
-    const renderArtists = () => {
+    function renderArtists() {
         if (Results === "false" || Results.trim() === "" || !searchKey) {
             return (
                 <div></div>
             )
         } else {
             return artists.map(item => (
-                    <div className="flex min-w-0 border h-[20vh] border-black border-solid max-w-[95%] sm:w-[80%] lg:w-[60%] xl:w-[50%] mt-5 transition-all bg-gray-600 hover:bg-gray-500 hover:h-[23vh] hover:ml-3 lg:hover:ml-10" key={item.id} onClick={() => {
-                        setArtistId(item.id)
+                <>
+                    <div className="flex min-w-0 border h-[20vh] border-black border-solid max-w-[95%] sm:w-[80%] lg:w-[60%] xl:w-[50%] mt-5 transition-all bg-gray-600 hover:bg-gray-500 hover:h-[23vh] hover:ml-3 lg:hover:ml-10" key={item.id}
+                    onMouseEnter= {() => {
+                        tooltipVisible({[item.id]: true})
+                    }} 
+
+                    onMouseLeave={() => {
+                        tooltipVisible({[item.id]: false})
+                    }}
+
+                    onClick={() => {
+                        setArtistId(item.id);
+                        
                     }}>
                         {item.images.length ? <img className="h-full" src={item.images[0].url} alt=""/> : <div>No Image</div>}
                         {/**setting 'min-w-0 stops the flex item from overflowing parent 
@@ -94,9 +106,11 @@ function SpotifyAPI(){
                         */}
                         <div className="min-w-0 overflow-hidden ml-5">
                             <p className="truncate whitespace-pre-wrap text-4xl sm:text-5xl lg:text-6xl mb-3">{item.name}</p>
-                            <p className="text-lg lg:text-xl">Followers: {item.followers.total} </p>
+                            <p className="text-lg lg:text-xl">Followers: {item.followers.total}</p>
                         </div>
-                    </div>
+                        <div className={`${toolTip[item.id] ? "opacity-90 duration-300 delay-500" : "opacity-0"} absolute bg-white rounded-md px-1 right-[2%] w-fit sm:text-xl xl:text-2xl sm:left-[70%] lg:left-[60%] xl:left-[50%] mt-5 sm:mt-12`} >{item.name}</div></div>
+                    </>
+                    
                 
             ));
         }
@@ -122,15 +136,11 @@ function SpotifyAPI(){
     const LoginOut = () => {
         if (!validation) {
             return (
-                <div>
-                    <button onClick={()=> {getAuth()}}>Login</button>
-                </div>
+                <button onClick={()=> {getAuth()}}>Login</button>
             )
         } else {
             return (
-            <div>
                 <button className="text-2xl border border-black rounded-md p-1 bg-gray-600" onClick={logout}>Log out</button>
-            </div>
             )
         }
     }
@@ -148,15 +158,15 @@ function SpotifyAPI(){
     //also displays all the render components
     return(
         <div className="bg-gray-400 min-h-screen max-h-full">
-            <div className="ml-20 flex gap-10">
-            {LoginOut()}
-            {validation ? 
-                <div className="flex"> 
-                    <p className="text-black text-2xl mr-3">Search here: </p><input className="text-black border border-black bg-gray-500 rounded-md pl-2" type="text" placeholder="Search Artist Here" onChange={e => setSearchKey(e.target.value)}/>
-                </div>
+            <div className="ml-20 max-[640px]:flex-col sm:flex sm:gap-10">
+                <div className=''>{LoginOut()}</div>
+                {validation ? 
+                    <div className="flex max-[640px]:mt-5"> 
+                        <p className="text-black text-lg sm:text-2xl mr-3">Search here: </p><input className="text-black border border-black bg-gray-500 rounded-md pl-2" type="text" placeholder="Search Artist Here" onChange={e => setSearchKey(e.target.value)}/>
+                    </div>
 
-                : <h2>Please login to use search feature</h2>
-            }
+                    : <h2>Please login to use search feature</h2>
+                }
             </div>
             <div id='artistSection'>
 
@@ -164,9 +174,8 @@ function SpotifyAPI(){
             {renderResultsMessage()}
             <div className="ml-5">
             {renderArtists()}
-            </div>
-            <PlaylistPopup artistId={artistId}/>
-            <div className='pt-10'></div>
+            </div><div className='h-[19vh]'></div>
+            <PlaylistPopup artistId={artistId} forceOpen={true}/>
         </div>
     )
 }
