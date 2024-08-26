@@ -334,14 +334,14 @@ function SpotifyAPI(){
     //if the Results state is false, it will instead show no artists as this state would only be false if the search were to give an error or no artists
     //clicking on a artist send the user to another page to view their top-10 tracks, as well as the ability to play them
     function renderArtists() {
-        if (Results === "false" || Results.trim() === "" || !searchKey || isOpen) {
-            return (
-                <div></div>
-            )
+        if (Results === "false" || Results.trim() === "" || !searchKey) {
+                return (
+                    <div></div>
+                )
         } else {
             return artists.map(item => (
                 <>
-                    <div className="h-[20vh] flex min-w-0 border border-black border-solid max-w-[95%] sm:w-[80%] lg:w-[60%] xl:w-[50%] mt-5 transition-all bg-gray-600 hover:bg-gray-500 hover:h-[23vh] hover:ml-3 lg:hover:ml-10" 
+                    <div className="h-[20vh] flex min-w-0 border border-black border-solid transition-all max-w-[90%] sm:w-[80%] lg:w-[60%] xl:w-[50%] mt-5 bg-gray-600 hover:bg-gray-500 hover:h-[23vh] hover:ml-3 lg:hover:ml-10"
                     key={item.id}
                     onMouseEnter= {() => {
                         setArtistTooltip({[item.id]: true})
@@ -445,7 +445,7 @@ function SpotifyAPI(){
     //displays the search text input as well as a message informing the user to login to use the spoitfy API if they are not
     //also displays all the render components
     return(
-        <div className="overflow-y-auto min-h-[80vh] bg-gray-400 max-h-full">
+        <div className="min-h-[80vh] bg-gray-400 max-h-full">
             <div className="ml-20 max-[640px]:flex-col sm:flex sm:gap-10">
                 <div className=''>{LoginOut()}</div>
                 {validation ? 
@@ -457,13 +457,13 @@ function SpotifyAPI(){
                 }
             </div>
             {renderResultsMessage()}
-            <div className='ml-5'>
+            <div className="fixed bottom-0 h-[77vh] w-full sm:h-[80vh] lg:h-[77vh] overflow-y-auto pb-36 pl-5">
             {renderArtists()}
-            </div><div className='h-[19vh]'></div>
+            </div>
             {/**overflow-y-auto disables scrollbar if there is no overflowing elements (for some reason this removes the scrollbar when my original div when) 
              * my other div is open
             */}
-            <div className={`${isOpen ? "h-full w-full overflow-y-auto pt-[5vh]" : "h-[0vh] w-full"} z-5 transition-all duration-[400ms] bg-gray-400 fixed bottom-0`}>
+            <div className={`${isOpen ? "h-full w-full pt-[5vh]" : "h-[0vh] w-full"} overflow-y-auto z-5 transition-all duration-[400ms] bg-gray-400 fixed bottom-0`}>
                 {renderSongs()}
             <div className={`${isOpen? "h-[16vh]" : "h-[0vh]"}`}></div>
                 
