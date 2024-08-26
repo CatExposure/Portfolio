@@ -2,7 +2,6 @@ Make responsive using mobile first
 +Banner
 -Carousel
 +NavBar
--PlaylistPopup
--Home
--SpotifyAPI
++PlaylistPopup
++SpotifyAPI
 

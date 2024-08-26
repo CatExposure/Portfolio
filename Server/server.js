@@ -274,7 +274,7 @@ app.post('/getArtists', cors(corsOptions), async function(req, res) {
 
 app.post('/getSongs', cors(corsOptions), async function(req, res){
     const clientKey = getClientKey(req);
-    const artistId = req.body.artistId
+    const artistId = req.body.artistId;
     let endPoint = "https://api.spotify.com/v1/artists/"+artistId+"/top-tracks"
     let accessToken = await getAccessToken(clientKey);
 
