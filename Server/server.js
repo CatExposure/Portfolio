@@ -10,6 +10,7 @@ const app = express();
 require("dotenv").config();
 let connect;
 const mysql = require('mysql2');
+const { default: axios } = require('axios');
 //.ENV THE ID AND SECRET
 const clientId = process.env.CLIENTID;
 const clientSecret = process.env.CLIENTSECRET;
@@ -77,32 +78,36 @@ function getExpireDate(){
 
 async function refreshToken(clientKey) {
     //we grab the users refresh token (the user will not exist if there is no refresh token)
-    //this is beecause the client expires at the same time as the refresh token expires (not yet implemented)
+    //this is because the client expires at the same time as the refresh token expires
     const refreshToken = await redisClient.hGet(clientKey, 'refresh_token');
-
-    const payload = {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': 'Basic ' + (new Buffer.from(clientId + ':' + clientSecret).toString('base64')),
-        },
-        body: new URLSearchParams({
-            client_id: clientId,
-            grant_type: 'refresh_token',
-            refresh_token: refreshToken
-        }),
-        }
-
-        const body = await fetch(tokenEndpoint, payload);
-        const response = await body.json();
-
-        //set all the information to the users entry
-        redisClient.hSet(clientKey, "access_token", response.access_token);
-        redisClient.hSet(clientKey, "refresh_token", response.refresh_token);
-        //we set the expiration date of the access token to 1 hour after the current date
-        redisClient.hSet(clientKey, "expire_date", getExpireDate().toString());
-        //expire the client entry in 1 week
-        redisClient.expire(clientKey, 604800);
+    var returnMessage = false
+        await axios({
+            method: 'post',
+            url: tokenEndpoint,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Basic ' + (new Buffer.from(clientId + ':' + clientSecret).toString('base64'))
+            },
+            data: {
+                client_id: clientId,
+                grant_type: 'refresh_token',
+                refresh_token: refreshToken
+            }
+        }).catch(function(err) {
+            console.log(err);
+            return false;
+        }).then((response) => {
+            if (response.status === 200) {
+                //set all the information to the users entry
+                redisClient.hSet(clientKey, "access_token", response.data.access_token);
+                redisClient.hSet(clientKey, "refresh_token", response.data.refresh_token);
+                //we set the expiration date of the access token to 1 hour after the current date
+                redisClient.hSet(clientKey, "expire_date", getExpireDate().toString());
+                //expire the client entry in 1 week
+                returnMessage = true
+            }
+        })
+        return returnMessage
 }
 
 //returns true/false depending on if the expire_date is in the past/future
@@ -118,8 +123,9 @@ async function validation(req){
     if (clientKey && await redisClient.exists(clientKey)){
         //if the clients access token is expired, or does not have one
         if (await accessTokenExpired(clientKey) || !await redisClient.hExists(clientKey, 'access_token')){
-            refreshToken(clientKey);
-            return true;
+            if (await refreshToken(clientKey)) {
+                return true;
+            } else {return false}
         } else {
             return true
         }
@@ -227,6 +233,7 @@ app.get("/token", cors(corsOptions), async function(req, res){
 
             const body = await fetch(tokenEndpoint, payload);
             const response = await body.json();
+
             redisClient.hSet(clientKey, "access_token", response.access_token);
             redisClient.hSet(clientKey, "refresh_token", response.refresh_token);
             redisClient.hSet(clientKey, "expire_date", getExpireDate().toString());
@@ -267,7 +274,7 @@ app.post('/getArtists', cors(corsOptions), async function(req, res) {
 
 app.post('/getSongs', cors(corsOptions), async function(req, res){
     const clientKey = getClientKey(req);
-    const artistId = req.body.artistId
+    const artistId = req.body.artistId;
     let endPoint = "https://api.spotify.com/v1/artists/"+artistId+"/top-tracks"
     let accessToken = await getAccessToken(clientKey);
 
@@ -308,7 +315,7 @@ async function dbConnect(){
     }
 }
 
-//dbConnect();s
+dbConnect();
 
 app.get('/test', cors(corsOptions), function(req, res) {
     var sql = "SELECT * from USERS"
