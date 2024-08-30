@@ -18,17 +18,18 @@ function SpotifyAPI(){
     var storedVolume = useRef(.5);
     var sliderDragging = useRef(false);
     var songDuration = useRef(30);
-    const [currentArtistTracks, setCurrentTracks] = useState([]);
+    var currentArtistTracks = useRef()
+    var currentTrack = useRef();
     const [displayedArtistTracks, setDisplayedTracks] = useState([]);
     const [currentTime, setCurrentTime] = useState(0)
     const [isPlaying, setPlaying] = useState(false);
-    const [currentTrack, setTrack] = useState();
     const [itemId, setItemId] = useState();
     const [isOpen, setIsOpen] = useState(false);
     const [audioVolume, setVolume] = useState(.5);
 
 
     const toggle = () => setPlaying(!isPlaying);
+    console.log(currentArtistTracks)
 
     isPlaying ? playAudio() : pauseAudio()
     audioPlayer.current.volume = audioVolume
@@ -40,13 +41,13 @@ function SpotifyAPI(){
     }
 
     useEffect(() => {
-        if (currentTrack != undefined) {
+        if (currentTrack.current != undefined) {
         //preview songs are only 30s long, but the below code gets the actual length of the full song.
-        //songDuration.current = currentTrack.duration_ms;
-        audioPlayer.current.src = currentTrack.preview_url;
+        //songDuration.current = currentTrack.current.duration_ms;
+        audioPlayer.current.src = currentTrack.current.preview_url;
         audioPlayer.current.load();
         }
-    }, [currentTrack]);
+    }, [currentTrack.current]);
 
     useEffect(() => {
         getValidation();
@@ -54,9 +55,7 @@ function SpotifyAPI(){
 
     //for some reason, the audioplayer.current.ended does not fire (more specifically, the playbackrate cannot be positive in order for it to fire)
     //this is just a simpler solution
-    audioPlayer.current.onended = () => {
-        nextSong();
-    }
+    audioPlayer.current.onended = () => {nextSong();}
 
     function getAuth(){
             Axios({
@@ -168,9 +167,9 @@ function SpotifyAPI(){
     };
 
     function displayPlaying() {
-        if (currentTrack) {
+        if (currentTrack.current) {
             return (
-            <div className='relative flex ml-5 md:ml-8 xl:ml-12 2xl:ml-16'><img className='border rounded-[50%] border-transparent' src={currentTrack.album.images[0].url}></img>
+            <div className='relative flex ml-5 md:ml-8 xl:ml-12 2xl:ml-16'><img className='border rounded-[50%] border-transparent' src={currentTrack.current.album.images[0].url}></img>
                 <div className='flex min-w-0 overflow-hidden flex-col'>
                     <label className='truncate whitespace-pre-wrap text-lg md:text-2xl mt-1 md:mt-3 ml-1 md:ml-3 my-auto'
 
@@ -180,14 +179,14 @@ function SpotifyAPI(){
 
                     onMouseLeave={() => {
                         setTrackTooltip(false)
-                    }}>{currentTrack.name}</label>
+                    }}>{currentTrack.current.name}</label>
                     <label className='text-sm ml-1 md:ml-3 my-auto hover:cursor-pointer' onClick={()=> {
-
-                        setDisplayedTracks(currentArtistTracks);
-                    }}>{currentTrack.artists[0].name}</label>
+                        artistId.current = currentTrack.current.artists[0].id;
+                        setDisplayedTracks(currentArtistTracks.current);
+                    }}>{currentTrack.current.artists[0].name}</label>
                     <div className='flex-1'></div>
                 </div>
-                <div className={`${trackTooltip ? "opacity-90 duration-300 delay-500" : "opacity-0"} absolute bg-white rounded-md px-1 right-[2%] w-fit sm:text-xl xl:text-2xl sm:left-[70%] lg:left-[60%] xl:left-[50%] mt-5 sm:mt-12`}>{currentTrack.name}</div>
+                <div className={`${trackTooltip ? "opacity-90 duration-300 delay-500" : "opacity-0"} absolute bg-white rounded-md px-1 right-[2%] w-fit sm:text-xl xl:text-2xl sm:left-[70%] lg:left-[60%] xl:left-[50%] mt-5 sm:mt-12`}>{currentTrack.current.name}</div>
             </div>)
         } else {
             return 
@@ -208,9 +207,10 @@ function SpotifyAPI(){
     }
 
     function nextSong(){
+        console.log(itemId);
         let newItemId = itemId+1
-        if (currentArtistTracks[newItemId]) {
-        setTrack(currentArtistTracks[newItemId]);
+        if (currentArtistTracks.current[newItemId]) {
+        currentTrack.current = currentArtistTracks.current[newItemId];
         setItemId(newItemId);
         audioPlayer.current.oncanplay = function() {
             //for some reason, toggle does NOT work here, even though it should do the exact same thing
@@ -220,8 +220,8 @@ function SpotifyAPI(){
 
     function previousSong(){
         let newItemId = itemId-1
-        if (currentArtistTracks[newItemId]) {
-        setTrack(currentArtistTracks[newItemId]);
+        if (currentArtistTracks.current[newItemId]) {
+        currentTrack.current = currentArtistTracks.current[newItemId];
         setItemId(newItemId);
         audioPlayer.current.oncanplay = function() {
             //for some reason, toggle does NOT work here, even though it should do the exact same thing
@@ -238,7 +238,7 @@ function SpotifyAPI(){
             onMouseDown={() => {sliderDragging.current = true; pauseAudio();}} 
             onMouseUp={() => {sliderDragging.current = false; playAudio();}} step="1" 
             onChange={(e) => {audioPlayer.current.currentTime = parseInt(e.target.value); setCurrentTime(parseInt(e.target.value))}}
-            disabled={!currentTrack}/>
+            disabled={!currentTrack.current}/>
             <label className="ml-2 md:ml-5">{convertMs(audioPlayer.current.currentTime * 1000)}</label>
             </>)
         } else {return <div></div>}
@@ -248,23 +248,23 @@ function SpotifyAPI(){
         return (
                 <>
                 <div className='flex mb-1 gap-2 md:gap-5'>
-                <button disabled={!currentTrack} onClick={() => {
+                <button disabled={!currentTrack.current} onClick={() => {
                     audioPlayer.current.currentTime = audioPlayer.current.currentTime - 5;
                 }}>
                     <ArrowUturnLeftIcon className='h-8 md:h-10 xl:h-12'/>
                 </button>
-                <button disabled={!currentTrack} onClick={() => {
+                <button disabled={!currentTrack.current} onClick={() => {
                     if (itemId > 0){
                         previousSong();
                 }}}><BackwardIcon className='h-8 md:h-10 xl:h-12'/></button>
-                <button disabled={!currentTrack} onClick={() => {
+                <button disabled={!currentTrack.current} onClick={() => {
                             toggle();
                         }}>{isPlaying ? <PauseCircleIcon className='h-8 md:h-10 xl:h-12'/> : <PlayCircleIcon className='h-8 md:h-10 xl:h-12'/>}</button>
-                <button disabled={!currentTrack} onClick={() => {
-                    if (itemId < currentArtistTracks.length-1){
+                <button disabled={!currentTrack.current} onClick={() => {
+                    if (itemId < currentArtistTracks.current.length-1){
                         nextSong();
                     }}}><ForwardIcon className='h-8 md:h-10 xl:h-12'/></button>
-                <button disabled={!currentTrack} onClick={() => {
+                <button disabled={!currentTrack.current} onClick={() => {
                     audioPlayer.current.currentTime = audioPlayer.current.currentTime + 5;
                 }}>
                     <ArrowUturnRightIcon className='h-8 md:h-10 xl:h-12'/>
@@ -340,17 +340,16 @@ function SpotifyAPI(){
                 )
         } else {
             return artists.map(item => (
-                <>
-                    <div className="h-[20vh] flex min-w-0 border border-black border-solid transition-all max-w-[90%] sm:w-[80%] lg:w-[60%] xl:w-[50%] mt-5 bg-gray-600 hover:bg-gray-500 hover:h-[23vh] hover:ml-3 lg:hover:ml-10"
+                <div className='group transition-all max-w-[90%] sm:w-[80%] lg:w-[60%] xl:w-[50%] mt-5 hover:pl-3 lg:hover:pl-10'
+                onMouseEnter= {() => {
+                    setArtistTooltip({[item.id]: true})
+                }} 
+
+                onMouseLeave={() => {
+                    setArtistTooltip({[item.id]: false})
+                }}>
+                    <div className="h-[20vh] flex min-w-0 border border-black border-solid transition-all bg-gray-600 group-hover:h-[23vh] group-hover:bg-gray-500"
                     key={item.id}
-                    onMouseEnter= {() => {
-                        setArtistTooltip({[item.id]: true})
-                    }} 
-
-                    onMouseLeave={() => {
-                        setArtistTooltip({[item.id]: false})
-                    }}
-
                     onClick={() => {
                         if (artistId.current != item.id){
                             artistId.current = item.id;
@@ -369,8 +368,8 @@ function SpotifyAPI(){
                             <p className="truncate whitespace-pre-wrap text-4xl sm:text-5xl lg:text-6xl mb-3">{item.name}</p>
                             <p className="text-lg lg:text-xl">Followers: {item.followers.total}</p>
                         </div>
-                        <div className={`${ArtistTooltip[item.id] ? "opacity-90 duration-300 delay-500" : "opacity-0"} absolute bg-white rounded-md px-1 right-[2%] w-fit sm:text-xl xl:text-2xl sm:left-[70%] lg:left-[60%] xl:left-[50%] mt-5 sm:mt-12`} >{item.name}</div></div>
-                    </>
+                        <div className={`${ArtistTooltip[item.id] ? "opacity-90 duration-300 delay-500" : "opacity-0"} pointer-events-none absolute bg-white rounded-md px-1 right-[2%] w-fit sm:text-xl xl:text-2xl sm:left-[70%] lg:left-[60%] xl:left-[50%] mt-5 sm:mt-12`} >{item.name}</div></div>
+                    </div>
                     
                 
             ));
@@ -430,9 +429,9 @@ function SpotifyAPI(){
                                 toggle();
                             } else {
                                 setPlaying(false);
-                                setCurrentTracks(displayedArtistTracks);
-                                setTrack(item);
-                                setItemId(currentArtistTracks.indexOf(item));
+                                currentArtistTracks.current = displayedArtistTracks;
+                                currentTrack.current = item;    
+                                setItemId(currentArtistTracks.current.indexOf(item));
                                 audioPlayer.current.oncanplay = function() {
                                     //for some reason, toggle does NOT work here, even though it should do the exact same thing
                                     setPlaying(true);
@@ -457,7 +456,7 @@ function SpotifyAPI(){
                 }
             </div>
             {renderResultsMessage()}
-            <div className="fixed bottom-0 h-[77vh] w-full sm:h-[80vh] lg:h-[77vh] overflow-y-auto pb-36 pl-5">
+            <div className="fixed bottom-0 max-h-[77vh] w-full sm:max-h-[80vh] lg:max-h-[77vh] overflow-y-auto pb-36 pl-5">
             {renderArtists()}
             </div>
             {/**overflow-y-auto disables scrollbar if there is no overflowing elements (for some reason this removes the scrollbar when my original div when) 
