@@ -1,10 +1,10 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {ArrowRightCircleIcon, ArrowLeftCircleIcon} from "@heroicons/react/24/outline"
+import { Context } from '../App.js'
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 
-function Carousel(){
-
-    const [slide, setSlide] = useState(0);
+export default function Carousel(){
+    const [slide, setSlide] = useContext(Context);
     const [autoPlay, setAutoPlay] = useState(true)
 
     var carImages=[
@@ -15,10 +15,6 @@ function Carousel(){
         {
             src: require("../Images/structure.png"),
             alt: "Image2",
-        },
-        {
-            src: require("../Images/fastboy.jpg"),
-            alt: "Image3",
         },
     ]
 
@@ -46,7 +42,8 @@ function Carousel(){
 
     return (
         <div id="carousel" className="relative mx-auto flex w-fit">
-            <div className="relative flex flex-row max-w-[20vw] h-[20vh] w-full rounded-lg overflow-hidden">
+            {/**this div is the over-arching container*/}
+            <div className="relative flex flex-row w-full max-w-[50vw] h-[50vh] rounded-lg overflow-hidden">
             <button className="absolute w-8 ml-2 left-0 inset-y-0 rounded-[50%] p-[-1] h-fit my-auto text-white z-10" 
             onClick={()=>{clearTimeout(slideInterval); slideLeft()}}><ArrowLeftCircleIcon/></button>
             {carImages.map((img, index) => {
@@ -71,6 +68,4 @@ function Carousel(){
             </div>
         </div>
     )
-}
-
-export default Carousel
+    }

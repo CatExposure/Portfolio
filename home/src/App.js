@@ -1,19 +1,27 @@
-import Carousel from './Components/Carousel'
+import { useState } from 'react';
 
 function App() {
+
+  const [darkTheme, setDarkTheme] = useState(false);
+
   return (
-    <div className="">
-      <div className="bg-black bg-cover min-h-screen max-h-full flex-col h-screen pt-[2%]">
-            <div className="w-fit h-fit rounded-xl px-3 ml-[1%] text-[56px] shadow-[0_0_10px_5px_#fff]">
-                <p className='text-white '>Welcome to my portfolio!</p>
-            </div>
-            <div className='flex-col my-[5%] w-1/3 justify-center text-center'>
-              <p className='text-[36px] text-white'>Projects</p>
-              <Carousel/>
-            </div>
+    <div>
+      <div className="absolute z-10 w-screen bg-black overflow-hidden animate-slideUp duration-1100">
+        <p className="absolute top-1/2 left-1/2 translate-x-[-50%] text-white text-center translate-y-[-50%] text-7xl">hey!</p>
       </div>
-      <div className='bg-black flex min-h-screen max-h-full'>
-        <img className="ml-auto mr-[2%] mt-[1%] h-[80%] shadow-[0_0_100px_5px_#fff] rounded-[50%]" src={require("./Images/karmaIcon.png")}></img>
+      <div>
+
+      </div>
+      <div className='flex-col text-center pt-5'>
+        <img alt="forbidden head" className="mx-auto h-48 border-black border-2 rounded-[50%]" src={require("./Images/headShot.png")}/>
+        <a className="text-3xl px-auto" href="mailto: andrenewbauer@gmail.com">Andre Newbauer</a>
+        <p className='p-5'>A full-stack web developer from Myrtle Beach, SC who enjoys playing games and drawing!</p>
+      </div>
+      <div className='flex-col text-center'>
+        <p className=''>Toolbox</p>
+      </div>
+      <div className='fixed bottom-0 border '>
+        <a href="mailto: andrenewbauer@gmail.com">andrenewbauer@gmail.com</a>
       </div>
     </div>
   );
