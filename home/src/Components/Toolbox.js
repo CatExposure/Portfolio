@@ -42,7 +42,6 @@ const images = [
 
 export default function ToolboxSlider(){
     const darkTheme = useContext(themeContext)
-    console.log(darkTheme)
     return (
         <div className={`${darkTheme ? "border-white" : "border-black"} relative h-14 w-[90vw] mx-auto border-y-2 overflow-hidden`}>
             <Marquee direction='right' speed={30} gradient={true} gradientColor={`${darkTheme ? "black" : "white"}`} gradientWidth={20}>
