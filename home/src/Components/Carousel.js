@@ -42,7 +42,7 @@ export default function Carousel(){
     return (
         <div>
             <div className='flex'>
-            <button className={`${darkTheme ? "text-white" : "text-black"} w-8 rounded-[50%] h-fit my-auto`} 
+            <button className={`${darkTheme ? "text-white" : "text-black"} w-10 md:w-12 2xl:w-14 rounded-[50%] h-fit my-auto`} 
             onClick={()=>{clearTimeout(slideInterval); slideLeft()}}><ArrowLeftCircleIcon/></button>
         <div id="carousel" className="relative mx-auto flex w-fit">
             {/**this div is the over-arching container*/}
@@ -70,7 +70,7 @@ export default function Carousel(){
                 )})}
                 </div>
         </div>
-        <button className={`${darkTheme ? "text-white" : "text-black"} w-8 rounded-[50%] h-fit my-auto`}
+        <button className={`${darkTheme ? "text-white" : "text-black"} w-10 md:w-12 2xl:w-14 rounded-[50%] h-fit my-auto`}
         onClick={()=>{clearTimeout(slideInterval); slideRight()}}><ArrowRightCircleIcon/></button>
         </div>
         <div className="text-center">

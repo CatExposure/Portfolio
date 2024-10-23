@@ -13,7 +13,7 @@ module.exports = {
 
       keyframes: {
         slideUp: {
-          '0%, 70%': {height: '100vh'},
+          '0%, 60%': {height: '100vh'},
           '100%': {height: '0vh'}
         },
         slideLeft: {
