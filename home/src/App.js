@@ -10,7 +10,7 @@ function App() {
 
   return (
     <div>
-      <div className="fixed z-10 w-screen h-[0vh] bg-black overflow-hidden text-center animate-slideU animate-duration-[1300ms]">
+      <div className="fixed z-10 w-screen h-[0vh] bg-black overflow-hidden text-center animate-slideUp animate-duration-[1300ms]">
         <p className="my-[50vh] translate-y-[-50%] text-white text-center text-9xl">hey!</p>
       </div>
       <div className={`${darkTheme ? "bg-black" : "bg-white"} min-h-screen max-h-full`}>
