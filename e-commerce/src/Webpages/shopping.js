@@ -1,6 +1,6 @@
 
 function shopping() {
-    <p>shopping</p>
+    return (<p>shopping</p>);
 }
 
 export default shopping;
