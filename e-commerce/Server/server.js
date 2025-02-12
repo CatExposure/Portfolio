@@ -1,7 +1,9 @@
-const mysql = require('mysql2');
 const Axios = require('axios');
 const cors = require('cors');
 const express = require('express');
+const pg = require('pg');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 const crypto = require('crypto');
 
@@ -25,21 +27,30 @@ app.use(cors());
 //using this to handle preflight requests so that they also intake the corsOptions
 app.options('*', cors(corsOptions));
 
+
+const { Client } = pg
+
+const client = new Client({
+    host: process.env.HOST,
+    user: process.env.ROOT_USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE,
+    port: 5432,
+    ssl: {
+        require: true,
+        rejectUnauthorized: true,
+        ca: fs.readFileSync(path.resolve(__dirname, "./us-east-2-bundle.pem")).toString(),
+    }
+});
+
 //this function is called everytime a connection to the database needs to be opened
 //this is wrapped in a promise to allow us to await the connection to finish before executing any further code
 function createConnection() {
     return new Promise((resolve, reject) => {
         try {
-            const con = mysql.createConnection({
-                host: process.env.HOST,
-                user: process.env.ROOT_USER,
-                password: process.env.PASSWORD,
-                database: process.env.DATABASE
-            });
-
-            con.connect(function (err) {
+            client.connect(function (err) {
                 if (err) {console.log(err)}
-                else {console.log("connection created!"); resolve(con);};
+                else {console.log("connection created!"); resolve(client);};
             });
         } catch (error) {
             reject(error);
@@ -47,11 +58,19 @@ function createConnection() {
     });
 }
 
+async function test() {
+    createConnection();
+    const res = await client.query('SELECT * FROM users');
+    console.log(res.rows[0]);
+}
+
+test()
+
 //this function is called whenever a query is to be executed in our dbms
 //wrapped in a promise to ensure we can await the results before executing further code
 function executeQuery(query, params) {
     return new Promise((resolve, reject) => {
-        con.execute(query, params, (err, result, fields) => {
+        client.query(query, params, (err, result, fields) => {
             if (err) reject(err);
             else resolve(result)
         });
@@ -111,12 +130,6 @@ async function validatePW(clientPW, passwordSalt, userPW) {
     }
     return false;
 }
-
-async function test() {
-    const con = await createConnection();
-}
-
-test()
 
 app.post("/test", cors(corsOptions), async function(req, res){server.getConnections(function(error, count) {
     console.log(count);
