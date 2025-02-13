@@ -27,10 +27,11 @@ app.use(cors());
 //using this to handle preflight requests so that they also intake the corsOptions
 app.options('*', cors(corsOptions));
 
+//we use a pool as this allows a 'pool' of open connections to pull from to use instead of creating a connetion for every request
+//pools close on their own after a query
+const { Pool } = pg
 
-const { Client } = pg
-
-const client = new Client({
+const pool = new Pool({
     host: process.env.HOST,
     user: process.env.ROOT_USER,
     password: process.env.PASSWORD,
@@ -43,71 +44,74 @@ const client = new Client({
     }
 });
 
-//this function is called everytime a connection to the database needs to be opened
-//this is wrapped in a promise to allow us to await the connection to finish before executing any further code
-function createConnection() {
-    return new Promise((resolve, reject) => {
-        try {
-            client.connect(function (err) {
-                if (err) {console.log(err)}
-                else {console.log("connection created!"); resolve(client);};
-            });
-        } catch (error) {
-            reject(error);
-        }   
-    });
+function errorHandler(err) {
+    switch(parseInt(err.code)) {
+        case 23505:
+            return ("This email already exists");
+        default:
+            return ("An unkown error has occured:\n"+err)
+    }
 }
-
-async function test() {
-    createConnection();
-    const res = await client.query('SELECT * FROM users');
-    console.log(res.rows[0]);
-}
-
-test()
 
 //this function is called whenever a query is to be executed in our dbms
 //wrapped in a promise to ensure we can await the results before executing further code
 function executeQuery(query, params) {
     return new Promise((resolve, reject) => {
-        client.query(query, params, (err, result, fields) => {
+        pool.query(query, params, (err, result, fields) => {
             if (err) reject(err);
             else resolve(result)
         });
     });
 }
 
+async function test() {
+    const query="SELECT * FROM users WHERE user_id = $1";
+    const params = [1];
+
+    await executeQuery(query, params)
+    .then(result => console.log(result.rows[0]))
+    .catch(errCode => console.log(errorHandler(errCode)));
+}
+
+test()
+
 //updates the tokens expiration date
 async function updateExpireDate(clientEmail) {
     const newDate = new Date(new Date().setDate(new Date().getDate() + 7));
-    const query = "UPDATE userInfo SET authExpire = ? WHERE userEmail = ?";
+    const query = "UPDATE users SET auth_expire = $1 WHERE email = $2";
     const params = [newDate, clientEmail];
-    await executeQuery(query, params);
+    await executeQuery(query, params)
+    .catch(errCode => console.log(errorHandler(errCode)));
 }
 
 //obtains a token that allows the user to access the site without having to login for 7 days
 async function obtainToken(clientEmail) {
     const token = crypto.randomBytes(16).toString('hex');
-    const query = "UPDATE userInfo SET authCode = ? WHERE userEmail = ?";
+    const query = "UPDATE users SET auth_code = $1 WHERE email = $2";
     const params = [token, clientEmail];
-    await executeQuery(query, params);
+    await executeQuery(query, params)
+    .catch(errCode => console.log(errorHandler(errCode)));
     await updateExpireDate(clientEmail);
     return token;
 }
 
 //authorizes the token to ensure it's the same token. This helps with ensuring the data is the clients, not somebody else using the clients credentials on their own behalf
 async function authorizeToken(clientEmail) {
-    const query = "SELECT authCode, authExpire FROM userInfo WHERE userEmail = ?";
+    let result;
+    const query = "SELECT auth_code, auth_expire FROM users WHERE email = $1";
     const params = [clientEmail];
-    const result = await executeQuery(query, params);
+
+    await executeQuery(query, params)
+    .then(promiseResult => result = promiseResult.rows[0])
+    .catch(errCode => console.log(errorHandler(errCode)));
 
     const curDate = new Date();
 
-    if (curDate > result[0].authExpire) {
+    if (curDate > result.auth_expire) {
         return await obtainToken(clientEmail);
     } else {
         console.log("not expired");
-        return result[0].authCode;
+        return result.auth_code;
         }
 }
 
@@ -131,56 +135,53 @@ async function validatePW(clientPW, passwordSalt, userPW) {
     return false;
 }
 
-app.post("/test", cors(corsOptions), async function(req, res){server.getConnections(function(error, count) {
-    console.log(count);
-})})
+app.post("/test", cors(corsOptions), async function(req, res){
+
+});
 
 app.post("/login", cors(corsOptions), async function(req, res){
-    console.log(req.body);
     const clientEmail = req.body.clientEmail;
     const clientPW = req.body.clientPW;
-
-    con = await createConnection();
-    con.execute("SELECT * FROM userInfo WHERE userEmail = ?", [clientEmail], async function (err, result) {
-        if (err) {console.log(err)}
+    const query = "SELECT * FROM users WHERE email = $1";
+    const params = [clientEmail];
+    await executeQuery(query, params)
+    .then((result) => {
+        result = result.rows[0];
+        console.log(result)
         //if the array length is falsey, then the query returned no data matching that email
-        else if (!result.length) {con.end(); res.send("Email is invalid"); return;}
-
-        else if (!validatePW(clientPW, result[0].passwordSalt, result[0].userPassword.toString())) {
-            con.end(); res.send("Password is invalid"); return;
+        if (!result.email) {res.send("Email is invalid"); return;}
+    
+        else if (!validatePW(clientPW, result.password_salt, result.password.toString())) {
+            res.send("Password is invalid"); return;
         }   
-
-        const token = await authorizeToken(clientEmail);
-        console.log(token)
-
-        if (token != false) {
-            const userData = {
-                userName: result[0].username,
-                authCode: token
-            };
-            con.end();
-            res.send(userData)
-        };
-    });
-})
+    
+        authorizeToken(clientEmail)
+        .then((token) => {console.log(token)
+    
+            if (token != false) {
+                const userData = {
+                    clientFirstName: result.first_name,
+                    auth_code: token
+                };
+                res.send(userData)
+            };})
+    })
+    .catch(errCode => console.log(errorHandler(errCode)));
+});
 
 app.post("/newLogin", cors(corsOptions), async function(req, res) {
-    console.log(req);
-    const clientUsername = req.body.clientUsername;
+    const clientFirstName = req.body.clientFirstName;
+    const clientLastName = req.body.clientLastName;
     const clientEmail = req.body.clientEmail;
     const clientPW = req.body.clientPW;
-    
-    con = await createConnection();
     
     const passwordSalt = crypto.randomBytes(16).toString('hex');
     const hashedPW = await hashPW(clientPW, passwordSalt);
-    con.execute("INSERT INTO userInfo (username, userPassword, userEmail, passwordSalt) VALUES (?, ?, ?, ?)", [clientUsername, hashedPW, clientEmail, passwordSalt], async function (err) {
-        if (err) {console.log(err); if (err.errno === 1062) {con.end(); res.send("Email already in use")}}
-        else {
-            con.end();
-            res.send(true);
-        }
-    })
+    const query = "INSERT INTO users (first_name, last_name, email, password, password_salt) VALUES ($1, $2, $3, $4, $5)"
+    const params = [clientFirstName, clientLastName, clientEmail, hashedPW, passwordSalt];
+    await executeQuery(query, params)
+    .then(() => res.send(true))
+    .catch(errCode => res.send(errorHandler(errCode)));
 })
 
 app.listen(app.get('port'), function() {
