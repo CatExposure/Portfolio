@@ -1,6 +1,10 @@
-
 function OuterWear() {
-    return (<p>Outerwear</p>);
+
+    return(
+    <>
+    
+    </>
+    );
 }
 
 export default OuterWear;
