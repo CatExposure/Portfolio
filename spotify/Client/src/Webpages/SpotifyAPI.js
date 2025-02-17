@@ -4,6 +4,7 @@ import Axios from 'axios';
 import {apiUrl} from "../Components/Api";
 import {PlayCircleIcon, PauseCircleIcon, ArrowDownIcon, BackwardIcon, ForwardIcon, SpeakerWaveIcon, SpeakerXMarkIcon, ArrowUturnLeftIcon, ArrowUturnRightIcon} from '@heroicons/react/24/outline';
 
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 
 function SpotifyAPI(){
@@ -30,6 +31,7 @@ function SpotifyAPI(){
 
     const toggle = () => setPlaying(!isPlaying);
     console.log(currentArtistTracks)
+    console.log(audioPlayer.current)
 
     isPlaying ? playAudio() : pauseAudio()
     audioPlayer.current.volume = audioVolume
@@ -44,6 +46,7 @@ function SpotifyAPI(){
         if (currentTrack.current != undefined) {
         //preview songs are only 30s long, but the below code gets the actual length of the full song.
         //songDuration.current = currentTrack.current.duration_ms;
+        console.log(currentTrack.current)
         audioPlayer.current.src = currentTrack.current.preview_url;
         audioPlayer.current.load();
         }
@@ -396,7 +399,7 @@ function SpotifyAPI(){
     const LoginOut = () => {
         if (!validation) {
             return (
-                <button onClick={()=> {getAuth()}}>Login</button>
+                <button className='text-xl' onClick={()=> {getAuth()}}>Login</button>
             )
         } else {
             return (
@@ -449,11 +452,12 @@ function SpotifyAPI(){
                 <div className=''>{LoginOut()}</div>
                 {validation ? 
                     <div className="flex max-[640px]:mt-5"> 
-                        <p className="text-black text-lg sm:text-2xl mr-3">Search here: </p><input className="text-black border border-black bg-gray-500 rounded-md pl-2" type="text" placeholder="Search Artist Here" onChange={e => setSearchKey(e.target.value)}/>
+                        <p className="text-black text-xl sm:text-2xl mr-3">Search here: </p><input className="text-black border border-black bg-gray-500 rounded-md pl-2" type="text" placeholder="Search Artist Here" onChange={e => setSearchKey(e.target.value)}/>
                     </div>
 
-                    : <h2>Please login to use search feature</h2>
+                    : <p className='text-xl'>Please login to use search feature</p>
                 }
+                <p className='text-2xl w-4/6'>Unfortunately, this application is now deprecated due to Spotify requiring the use of their Web Playback SDK. {<a href="/ThanksSpotify" className='underline text-blue-800 hover:text-blue-500'>what does this mean?</a>}</p>
             </div>
             {renderResultsMessage()}
             <div className="fixed bottom-0 max-h-[77vh] w-full sm:max-h-[80vh] lg:max-h-[77vh] overflow-y-auto pb-36 pl-5">
