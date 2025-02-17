@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const oracledb = require('oracledb');
 const express = require('express');
 const cors = require('cors');
 const redis = require('redis');
