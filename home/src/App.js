@@ -15,7 +15,7 @@ function App() {
       </div>
       <div className={`${darkTheme ? "bg-black" : "bg-white"} min-h-screen max-h-full`}>
         <div className='w-screen overflow-hidden'>
-          <button className={`${darkTheme ? "text-white" : "text-black"} relative float-right border-black border-2 px-2 rounded-2xl`}
+          <button className={`${darkTheme ? "text-white border-white" : "text-black border-black"} mr-2 mt-2 relative float-right border-black border-2 px-2 rounded-2xl`}
           onClick={()=>setDarkTheme(!darkTheme)}>
            Theme
           </button>
@@ -46,13 +46,13 @@ function App() {
           </themeContext.Provider>
           </div>
         </div>
-        <div className={`${darkTheme ? "border-white" : "border-black"} border-t-2 p-1 flex gap-6 bottom-0 mt-3`}>
-          <p className='content-center text-2xl lg:text-3xl'>SOCIAL</p>
+        <div className="border-t-2 p-1 flex gap-6 bottom-0 mt-3">
+          <p className={`${darkTheme ? "text-white" : "text-black"} content-center text-2xl lg:text-3xl`}>SOCIAL</p>
           <div className='flex'>
           <AtSymbolIcon className={`${darkTheme ? "text-white" : "text-black"} w-8 lg:w-12 mr-2`}/>
           <a className={`${darkTheme ? "text-white" : "text-black"} text-xl lg:text-2xl content-center`} href="mailto: andrenewbauer@gmail.com">andrenewbauer@gmail.com</a>
           </div>
-          <div className='flex content-center'>
+          <div className={`${darkTheme ? "text-white" : "text-black"} flex content-center`}>
             <img className='w-8 lg:w-12 mr-2' src={require("./Images/githubIcon.png")}/>
             <a className='content-center text-xl lg:text-2xl' target="_blank" rel="noopener norefferer" href="https://github.com/CatExposure">CatExposure</a>
           </div>
