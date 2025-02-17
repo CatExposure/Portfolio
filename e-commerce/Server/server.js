@@ -144,15 +144,18 @@ app.post("/login", cors(corsOptions), async function(req, res){
     const clientPW = req.body.clientPW;
     const query = "SELECT * FROM users WHERE email = $1";
     const params = [clientEmail];
+
     await executeQuery(query, params)
     .then((result) => {
         result = result.rows[0];
-        console.log(result)
+
         //if the array length is falsey, then the query returned no data matching that email
-        if (!result.email) {res.send("Email is invalid"); return;}
-    
+        if (!result.email) {res.send("Email is invalid"); 
+            return;
+        }
         else if (!validatePW(clientPW, result.password_salt, result.password.toString())) {
-            res.send("Password is invalid"); return;
+            res.send("Password is invalid"); 
+            return;
         }   
     
         authorizeToken(clientEmail)
@@ -174,11 +177,11 @@ app.post("/newLogin", cors(corsOptions), async function(req, res) {
     const clientLastName = req.body.clientLastName;
     const clientEmail = req.body.clientEmail;
     const clientPW = req.body.clientPW;
-    
     const passwordSalt = crypto.randomBytes(16).toString('hex');
     const hashedPW = await hashPW(clientPW, passwordSalt);
     const query = "INSERT INTO users (first_name, last_name, email, password, password_salt) VALUES ($1, $2, $3, $4, $5)"
     const params = [clientFirstName, clientLastName, clientEmail, hashedPW, passwordSalt];
+
     await executeQuery(query, params)
     .then(() => res.send(true))
     .catch(errCode => res.send(errorHandler(errCode)));
