@@ -7,8 +7,6 @@ var cookie = require('cookie');
 const querystring = require('node:querystring'); 
 const app = express();
 require("dotenv").config();
-let connect;
-const mysql = require('mysql2');
 const { default: axios } = require('axios');
 //.ENV THE ID AND SECRET
 const clientId = process.env.CLIENTID;

@@ -1,16 +1,24 @@
 import NavbarComponent from './Components/Navbar.js';
-import Home from './Webpages/home.js'
-import Shopping from './Webpages/shopping.js'
-import {Route, Routes} from 'react-router-dom';
+import Home from './Webpages/Home.js';
+import OuterWear from './Webpages/OuterWear.js';
+import Undergarments from './Webpages/Undergarments.js';
+import MiningEssentials from './Webpages/MiningEssentials.js';
+import Sculptures from './Webpages/Sculptures.js';
+import {BrowserRouter, Route, Routes} from 'react-router';
 
 function App() {
     return(
         <div className='App'>
             <NavbarComponent/>
-            <Routes>
-                <Route index Component={Home}/>
-                <Route path="/Shopping" Component={Shopping}/>
-            </Routes>
+            <BrowserRouter>
+                <Routes>
+                    <Route index Component={Home}/>
+                    <Route path="/OuterWear" Component={OuterWear}/>
+                    <Route path="/Undergarments" Component={Undergarments}/>
+                    <Route path="/MiningEssentials" Component={MiningEssentials}/>
+                    <Route path="/Sculptures" Component={Sculptures}/>
+                </Routes>
+            </BrowserRouter>
         </div>
     );
 }

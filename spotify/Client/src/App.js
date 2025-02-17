@@ -1,4 +1,4 @@
-import SpotifyAPI from './Webpages/SpotifyAPI';
+import SpotifyAPI from './Webpages/SpotifyAPI.js';
 import BannerSection from './Components/Banner';
 import ThanksSpotify from './Webpages/ThanksSpotify';
 import {BrowserRouter, Route, Routes} from 'react-router';
