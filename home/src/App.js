@@ -14,7 +14,7 @@ function App() {
         <p className="my-[50vh] translate-y-[-50%] text-white text-center text-9xl">hey!</p>
       </div>
       <div className={`${darkTheme ? "bg-black" : "bg-white"} min-h-screen max-h-full`}>
-        <div className='w-screen overflow-hidden'>
+        <div>
           <button className={`${darkTheme ? "text-white border-white" : "text-black border-black"} mr-2 mt-2 relative float-right border-black border-2 px-2 rounded-2xl`}
           onClick={()=>setDarkTheme(!darkTheme)}>
            Theme
