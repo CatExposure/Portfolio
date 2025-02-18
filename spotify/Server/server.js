@@ -14,7 +14,7 @@ const clientSecret = process.env.CLIENTSECRET;
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
 //CHANGE THIS DEPENDING ON IN PRODUCTION OR NOT
 const inProduction = Boolean(false);
-const redirectUri = inProduction ? "https://protosite.online/api" : "http://localhost:5000";
+const redirectUri = inProduction ? "https://spotify.protosite.online/api" : "http://localhost:5000";
 const redirectUrl = inProduction ? "https://spotify.protosite.online" : "http://localhost:3000"
 
 //Used so that it trusts the proxy nginx innately has
