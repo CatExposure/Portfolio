@@ -10,7 +10,7 @@ function App() {
         <BannerSection/>
         {/** <NavBar /> || Include this when there's more than 1 page*/}
         <Routes>
-          <Route path="/SpotifyAPI" Component={SpotifyAPI}/>
+          <Route path="/" Component={SpotifyAPI}/>
           <Route path="/ThanksSpotify" Component={ThanksSpotify}/>
         </Routes>
       </BrowserRouter>

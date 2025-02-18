@@ -12,7 +12,7 @@ function App() {
             <NavbarComponent/>
             <BrowserRouter>
                 <Routes>
-                    <Route index Component={Home}/>
+                    <Route path="/" Component={Home}/>
                     <Route path="/OuterWear" Component={OuterWear}/>
                     <Route path="/Undergarments" Component={Undergarments}/>
                     <Route path="/MiningEssentials" Component={MiningEssentials}/>

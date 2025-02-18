@@ -14,8 +14,8 @@ const clientSecret = process.env.CLIENTSECRET;
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
 //CHANGE THIS DEPENDING ON IN PRODUCTION OR NOT
 const inProduction = Boolean(false);
-const redirectUri = inProduction ? "https://protosite.online/api/v1" : "http://localhost:5000";
-const redirectUrl = inProduction ? "https://protosite.online" : "http://localhost:3001"
+const redirectUri = inProduction ? "https://spotify.protosite.online/api" : "http://localhost:5000";
+const redirectUrl = inProduction ? "https://spotify.protosite.online" : "http://localhost:3000"
 
 //Used so that it trusts the proxy nginx innately has
 app.set('trust proxy', 1);
@@ -38,7 +38,7 @@ app.use(express.json());
 
 //the domains allowed to access the api endpoints of this server, as well as if credentials are allowed
 const corsOptions = {
-    origin: ["https://protosite.online", "http://localhost:3001"],
+    origin: ["https://spotify.protosite.online", "http://localhost:3000"],
     optionsSucessStatus: 204,
     credentials: true,
 };
@@ -236,7 +236,7 @@ app.get("/token", cors(corsOptions), async function(req, res){
             redisClient.hSet(clientKey, "expire_date", getExpireDate().toString());
             redisClient.expire(clientKey, 604800);
             
-            res.redirect(redirectUrl+"/SpotifyAPI");
+            res.redirect(redirectUrl);
     } else {
         console.log("state does not match")
     }
