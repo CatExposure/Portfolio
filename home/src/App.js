@@ -14,14 +14,14 @@ function App() {
         <p className="my-[50vh] translate-y-[-50%] text-white text-center text-9xl">hey!</p>
       </div>
       <div className={`${darkTheme ? "bg-black" : "bg-white"} min-h-screen max-h-full`}>
-        <div>
+        <div className='overflow-hidden'>
           <button className={`${darkTheme ? "text-white border-white" : "text-black border-black"} mr-2 mt-2 relative float-right border-black border-2 px-2 rounded-2xl`}
           onClick={()=>setDarkTheme(!darkTheme)}>
            Theme
           </button>
         </div>
         <div className={`${darkTheme ? "text-white" : "text-black"} flex-col text-center pt-5`}>
-          <img alt="forbidden head" className={`${darkTheme ? "border-white" : "border-black"} mx-auto h-48 border-2 rounded-[50%]`} src={require("./Images/headShot.png")}/>
+          <img alt="forbidden head" className={`${darkTheme ? "border-white" : "border-black"} m-auto h-48 border-2 rounded-[50%]`} src={require("./Images/headShot.png")}/>
           <a className="text-3xl lg:text-5xl px-auto" href="mailto: andrenewbauer@gmail.com">Andre Newbauer</a>
           <p className='p-5'>A full-stack web developer from Myrtle Beach, SC who enjoys playing games and with cats!</p>
         </div>
