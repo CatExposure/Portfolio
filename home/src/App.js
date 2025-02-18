@@ -38,13 +38,12 @@ function App() {
           <p className={`${darkTheme ? "text-white" : "text-black"} my-auto sm:text-2xl`}>When I'm not working, coding or playing fetch with my cat, I'm playing many different video games such as Warframe, League of Legends and Rain World!</p>
           </div>
         </div>
-        <div className={`${darkTheme ? "border-white" : "border-black"} border-b-2 lg:border-b-4 py-5 lg:py-8 mx-5 md:mx-10 lg:mx-14 2xl:mx-16`}>
+        <div className={`${darkTheme ? "border-white" : "border-black"} flex-col border-b-2 lg:border-b-4 py-5 lg:py-8 mx-5 md:mx-10 lg:mx-14 2xl:mx-16`}>
           <p className={`${darkTheme ? "text-white" : "text-black"} text-2xl md:text-3xl lg:text-4xl text-center pt-1 pb-3`}>Projects</p>
-          <div className=''>
+          <p className={`${darkTheme ? "text-white" : "text-black"} text-xl md:text-2xl lg:text-3xl text-center pt-1 pb-3`}>Click on the image to be taken to the site!</p>
           <themeContext.Provider value={darkTheme}>
             <Carousel/>
           </themeContext.Provider>
-          </div>
         </div>
         <div className="border-t-2 p-1 flex gap-6 bottom-0 mt-3">
           <p className={`${darkTheme ? "text-white" : "text-black"} content-center text-2xl lg:text-3xl`}>SOCIAL</p>

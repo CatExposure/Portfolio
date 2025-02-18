@@ -12,12 +12,12 @@ const app = express();
 //Used so that it trusts the proxy nginx innately has
 app.set('trust proxy', 1);
 
-app.set('port', 4000);
+app.set('port', 5001);
 app.use(express.json());
 
 //the domains allowed to access the api endpoints of this server, as well as if credentials are allowed
 const corsOptions = {
-    origin: ["https://protosite.online", "http://localhost:3001"],
+    origin: ["https://e-commerce.protosite.online", "http://localhost:3001"],
     optionsSucessStatus: 204,
     credentials: true,
 };
