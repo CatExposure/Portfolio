@@ -1,7 +1,7 @@
 {
   "name": "home",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "dependencies": {
     "@heroicons/react": "^2.1.5",
     "@testing-library/jest-dom": "^5.17.0",

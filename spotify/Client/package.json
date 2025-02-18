@@ -1,8 +1,7 @@
 {
   "name": "client",
   "version": "0.1.0",
-  "private": true,
-  "proxy": "http://localhost:5000",
+  "private": false,
   "dependencies": {
     "@headlessui/react": "^1.7.19",
     "@headlessui/tailwindcss": "^0.2.0",
