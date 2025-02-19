@@ -47,7 +47,7 @@ function App() {
           </div>
         </div>
         <div className="border-t-2 p-1 flex flex-col sm:flex-row gap-6 bottom-0 mt-3">
-          <p className={`${darkTheme ? "text-white decoration-white" : "text-black"} text-center underline sm:no-underline text-2xl md:text-3xl lg:text-4xl`}>SOCIAL</p>
+          <p className={`${darkTheme ? "text-white decoration-white" : "text-black"} text-center content-center underline sm:no-underline text-2xl md:text-3xl lg:text-4xl`}>SOCIAL</p>
           <div className='flex'>
           <AtSymbolIcon className={`${darkTheme ? "text-white" : "text-black"} w-8 lg:w-12 mr-2`}/>
           <a className={`${darkTheme ? "text-white" : "text-black"} text-lg md:text-xl lg:text-2xl content-center`} href="mailto: andrenewbauer@gmail.com">andrenewbauer@gmail.com</a>
