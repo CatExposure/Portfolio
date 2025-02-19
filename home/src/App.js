@@ -46,15 +46,15 @@ function App() {
           </themeContext.Provider>
           </div>
         </div>
-        <div className="border-t-2 p-1 flex gap-6 bottom-0 mt-3">
-          <p className={`${darkTheme ? "text-white" : "text-black"} content-center text-2xl lg:text-3xl`}>SOCIAL</p>
+        <div className="border-t-2 p-1 flex flex-col sm:flex-row gap-6 bottom-0 mt-3">
+          <p className={`${darkTheme ? "text-white decoration-white" : "text-black"} text-center underline sm:no-underline text-2xl md:text-3xl lg:text-4xl`}>SOCIAL</p>
           <div className='flex'>
           <AtSymbolIcon className={`${darkTheme ? "text-white" : "text-black"} w-8 lg:w-12 mr-2`}/>
-          <a className={`${darkTheme ? "text-white" : "text-black"} text-xl lg:text-2xl content-center`} href="mailto: andrenewbauer@gmail.com">andrenewbauer@gmail.com</a>
+          <a className={`${darkTheme ? "text-white" : "text-black"} text-lg md:text-xl lg:text-2xl content-center`} href="mailto: andrenewbauer@gmail.com">andrenewbauer@gmail.com</a>
           </div>
           <div className={`${darkTheme ? "text-white" : "text-black"} flex content-center`}>
             <img className='w-8 lg:w-12 mr-2' src={require("./Images/githubIcon.png")}/>
-            <a className='content-center text-xl lg:text-2xl' target="_blank" rel="noopener norefferer" href="https://github.com/CatExposure">CatExposure</a>
+            <a className='content-center text-lg md:text-xl lg:text-2xl' target="_blank" rel="noopener norefferer" href="https://github.com/CatExposure">CatExposure</a>
           </div>
         </div>
       </div>
